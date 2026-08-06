@@ -22,9 +22,8 @@ export const createVisitorPass = async (req, res, next) => {
   }
 
   try {
-    console.log(req.user.id);
-
     const pass = await createVisitorPassService(req.user.id, matchedData(req));
+    console.log(pass);
 
     return res.status(201).json({
       success: true,
