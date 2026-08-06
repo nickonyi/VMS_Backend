@@ -13,6 +13,15 @@ export const registerUser = async ({
   role,
   status,
 }) => {
+  console.log({
+    fullName,
+    email,
+    phone,
+    password,
+    role,
+    status,
+  });
+
   if (!fullName || !email || !phone || !password || !role || !status) {
     throw Error("data required for registration");
   }

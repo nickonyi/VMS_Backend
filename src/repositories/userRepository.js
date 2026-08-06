@@ -9,9 +9,23 @@ export const createUsersInDB = async ({
   status,
 }) => {
   const users = await prisma.$queryRaw`
-  INSERT INTO users(full_name,email,phone,password_hash,role,status) 
-  values $1,$2,$3,$4,$5,$6
-  RETURNING *
+    INSERT INTO users (
+      full_name,
+      email,
+      phone,
+      password_hash,
+      role,
+      status
+    )
+    VALUES (
+      ${fullName},
+      ${email},
+      ${phone},
+      ${hashedPassword},
+      ${role},
+      ${status}
+    )
+    RETURNING *;
   `;
 
   return users[0] ?? null;

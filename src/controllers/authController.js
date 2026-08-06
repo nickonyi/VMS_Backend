@@ -1,5 +1,6 @@
 import { matchedData, validationResult } from "express-validator";
 import passport from "../config/passportConfig.js";
+import { registerUser } from "../services/authService.js";
 
 export const postSignup = async (req, res, next) => {
   try {
@@ -20,13 +21,14 @@ export const postSignup = async (req, res, next) => {
       });
     }
 
-    const { firstName, lastName, email, password, role, status } =
-      matchedData(req);
+    const { fullName, email, password } = matchedData(req);
+
+    const { role, status, phone } = req.body;
 
     const user = await registerUser({
-      firstName,
-      lastName,
+      fullName,
       email,
+      phone,
       password,
       role,
       status,
