@@ -1,4 +1,21 @@
-import { prisma } from "../lib/prisma";
+import { prisma } from "../lib/prisma.js";
+
+export const createUsersInDB = async ({
+  fullName,
+  email,
+  phone,
+  hashedPassword,
+  role,
+  status,
+}) => {
+  const users = await prisma.$queryRaw`
+  INSERT INTO users(full_name,email,phone,password_hash,role,status) 
+  values $1,$2,$3,$4,$5,$6
+  RETURNING *
+  `;
+
+  return users[0] ?? null;
+};
 
 export const getUserByEmailFromDb = async (email) => {
   const users = await prisma.$queryRaw`

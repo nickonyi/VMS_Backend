@@ -1,5 +1,5 @@
 import session from "express-session";
-import { createSessionStore } from "../utils/sessionStore";
+import { createSessionStore } from "../utils/sessionStore.js";
 
 export const sessionMiddleware = session({
   name: "connect.sid",
