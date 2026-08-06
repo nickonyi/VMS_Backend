@@ -13,10 +13,16 @@ export const getApartmentByResidentIdFromDB = async (residentId) => {
 
 export const createVisitorInDB = async ({ fullName, phone, vehicleReg }) => {
   const visitor = await prisma.$queryRaw`
-    INSERT INTO visitors
-        (full_name, phone, vehicle_reg)
-    VALUES
-        (${fullName}, ${phone}, ${vehicleReg})
+    INSERT INTO visitors (
+      full_name,
+      phone,
+      vehicle_reg
+    )
+    VALUES (
+      ${fullName},
+      ${phone},
+      ${vehicleReg}
+    )
     RETURNING *;
   `;
 
@@ -28,30 +34,25 @@ export const createVisitorPassInDB = async ({
   residentId,
   apartmentId,
   purpose,
-  notes,
   numOfGuests,
   expectedArrivalAt,
   expiresAt,
 }) => {
   const pass = await prisma.$queryRaw`
-    INSERT INTO visitor_passes
-    (
+    INSERT INTO visitor_passes (
       visitor_id,
       resident_id,
       apartment_id,
       purpose,
-      notes,
       num_of_guests,
       expected_arrival_at,
       expires_at
     )
-    VALUES
-    (
+    VALUES (
       ${visitorId},
       ${residentId},
       ${apartmentId},
       ${purpose},
-      ${notes},
       ${numOfGuests},
       ${expectedArrivalAt},
       ${expiresAt}

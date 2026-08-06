@@ -22,7 +22,7 @@ app.use(passport.session());
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
-app.use("/api/pass", passRoutes);
+app.use("/api/passes", passRoutes);
 
 app.use(globalErrorHandler);
 
