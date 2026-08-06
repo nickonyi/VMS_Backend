@@ -74,8 +74,8 @@ CREATE TABLE users (
     role user_role NOT NULL,
     status user_status NOT NULL DEFAULT 'active',
 
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- =====================================================
@@ -91,7 +91,8 @@ CREATE TABLE apartments (
 
     resident_id UUID UNIQUE,
 
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_apartment_resident
         FOREIGN KEY (resident_id)
@@ -113,8 +114,8 @@ CREATE TABLE visitors (
     phone VARCHAR(20),
     vehicle_reg VARCHAR(20),
 
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- =====================================================
@@ -133,16 +134,16 @@ CREATE TABLE visitor_passes (
 
     num_of_guests INTEGER NOT NULL DEFAULT 1,
 
-    expected_arrival_at TIMESTAMPTZ NOT NULL,
-    expires_at TIMESTAMPTZ NOT NULL,
+    expected_arrival_at TIMESTAMP NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
 
     qr_token UUID NOT NULL UNIQUE DEFAULT gen_random_uuid(),
 
     status visitor_pass_status NOT NULL DEFAULT 'pending',
 
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    cancelled_at TIMESTAMPTZ,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    cancelled_at TIMESTAMP,
 
     CONSTRAINT fk_pass_visitor
         FOREIGN KEY (visitor_id)
@@ -178,7 +179,7 @@ CREATE TABLE visit_logs (
 
     action visit_action NOT NULL,
 
-    timestamp TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_log_pass
         FOREIGN KEY (visitor_pass_id)

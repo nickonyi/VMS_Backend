@@ -52,4 +52,38 @@ export const postSignup = async (req, res, next) => {
   }
 };
 
-export const postSignin = (req, res, next) => {};
+export const postSignin = (req, res, next) => {
+  passport.authenticate("local", (err, user, info) => {
+    if (err) return next(err);
+
+    if (!user) {
+      console.log("3. User not authenticated");
+      return res.status(401).json({
+        success: false,
+        message: info?.message || "Email or password is incorrect",
+      });
+    }
+
+    req.session.regenerate((err) => {
+      if (err) return next(err);
+
+      req.login(user, (err) => {
+        if (err) return next(err);
+
+        console.log(user);
+
+        return res.status(200).json({
+          success: true,
+          message: "Login successful.",
+          user: {
+            id: user.id,
+            fullName: user.full_name,
+            email: user.email,
+            role: user.role,
+            status: user.status,
+          },
+        });
+      });
+    });
+  })(req, res, next);
+};

@@ -13,15 +13,6 @@ export const registerUser = async ({
   role,
   status,
 }) => {
-  console.log({
-    fullName,
-    email,
-    phone,
-    password,
-    role,
-    status,
-  });
-
   if (!fullName || !email || !phone || !password || !role || !status) {
     throw Error("data required for registration");
   }
@@ -57,7 +48,7 @@ export const validateUser = async (email, password, verifyFn) => {
 
   if (!user) return null;
 
-  const isValid = verifyFn(password, user.password_hash);
+  const isValid = await verifyFn(password, user.password_hash);
 
   return isValid ? user : null;
 };

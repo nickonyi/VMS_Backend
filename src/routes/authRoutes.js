@@ -9,6 +9,6 @@ import { postSignup, postSignin } from "../controllers/authController.js";
 const authRoutes = Router();
 
 authRoutes.post("/signup", signUpValidator, postSignup);
-authRoutes.post("/signin", ensureAuth, loginValidator, postSignin);
+authRoutes.post("/signin", loginValidator, postSignin);
 
 export default authRoutes;

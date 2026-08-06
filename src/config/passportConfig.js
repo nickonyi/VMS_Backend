@@ -16,11 +16,11 @@ passport.use(
 
         if (!user) {
           return done(null, false, {
-            message: "Invalid credentials",
+            message: "Email or password is incorrect",
           });
-
-          return done(null, user);
         }
+
+        return done(null, user);
       } catch (err) {
         return done(err);
       }

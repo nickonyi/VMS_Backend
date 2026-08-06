@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "dev": "node --watch src/server.js",
-    "reset-db": "psql -U phatommobb -d vms_db -f sql/init.sql"
+    "reset-db": "psql -U phatommobb -d vms_db -f src/db/sql/init.sql",
+    "seed-db": "psql -U phatommobb -d vms_db -f src/db/sql/seed.sql",
+    "fresh-db": "npm run reset-db && npm run seed-db"
   },
   "repository": {
     "type": "git",
