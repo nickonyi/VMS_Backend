@@ -70,8 +70,6 @@ export const postSignin = (req, res, next) => {
       req.login(user, (err) => {
         if (err) return next(err);
 
-        console.log(user);
-
         return res.status(200).json({
           success: true,
           message: "Login successful.",
@@ -86,4 +84,19 @@ export const postSignin = (req, res, next) => {
       });
     });
   })(req, res, next);
+};
+
+export const getSignout = (req, res, next) => {
+  req.logout((err) => {
+    if (err) return next(err);
+
+    req.session.destroy(() => {
+      res.clearCookie("connect.sid");
+
+      return res.status(200).json({
+        success: true,
+        message: "Logged out successfully.",
+      });
+    });
+  });
 };

@@ -4,11 +4,16 @@ import {
   signUpValidator,
   loginValidator,
 } from "../middlewares/validators/authValidator.js";
-import { postSignup, postSignin } from "../controllers/authController.js";
+import {
+  postSignup,
+  postSignin,
+  getSignout,
+} from "../controllers/authController.js";
 
 const authRoutes = Router();
 
 authRoutes.post("/signup", signUpValidator, postSignup);
-authRoutes.post("/signin", ensureAuth, loginValidator, postSignin);
+authRoutes.post("/signin", loginValidator, postSignin);
+authRoutes.post("/signout", getSignout);
 
 export default authRoutes;
