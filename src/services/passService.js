@@ -2,6 +2,7 @@ import {
   createVisitorInDB,
   createVisitorPassInDB,
   getApartmentByResidentIdFromDB,
+  getPassByIdFromDB,
 } from "../repositories/passRepository.js";
 
 export const createVisitorPassService = async (residentId, data) => {
@@ -28,4 +29,8 @@ export const createVisitorPassService = async (residentId, data) => {
   });
 
   return pass;
+};
+
+export const getPassById = async (id) => {
+  return await getPassByIdFromDB(id);
 };

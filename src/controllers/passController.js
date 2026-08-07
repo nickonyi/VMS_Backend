@@ -1,4 +1,7 @@
-import { createVisitorPassService } from "../services/passService.js";
+import {
+  createVisitorPassService,
+  getPassById,
+} from "../services/passService.js";
 import { matchedData, validationResult } from "express-validator";
 
 export const createVisitorPass = async (req, res, next) => {
@@ -12,8 +15,6 @@ export const createVisitorPass = async (req, res, next) => {
         mappedErrors[err.path] = err.msg;
       }
     });
-
-    console.log(mappedErrors);
 
     return res.status(400).json({
       success: false,
@@ -29,6 +30,28 @@ export const createVisitorPass = async (req, res, next) => {
       success: true,
       message: "Visitor pass created successfully.",
       pass,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getPass = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const pass = await getPassById(id);
+
+    if (!pass) {
+      return res.status(404).json({
+        success: false,
+        message: "Visitor pass not found.",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: pass,
     });
   } catch (err) {
     next(err);

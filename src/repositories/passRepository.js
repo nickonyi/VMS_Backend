@@ -62,3 +62,35 @@ export const createVisitorPassInDB = async ({
 
   return pass[0];
 };
+
+export const getPassByIdFromDB = async (id) => {
+  const result = await prisma.$queryRaw`
+    SELECT
+    vp.id,
+    v.full_name AS guest_name,
+    v.phone AS guest_phone,
+    v.vehicle_reg,
+    vp.purpose,
+    vp.notes,
+    vp.num_of_guests,
+    vp.expected_arrival_at AS visit_date,
+    vp.expires_at,
+    vp.qr_token,
+    vp.status,
+    vp.created_at,
+    a.unit_number,
+    a.block,
+    u.full_name AS resident_name
+FROM visitor_passes vp
+JOIN visitors v
+    ON vp.visitor_id = v.id
+JOIN apartments a
+    ON vp.apartment_id = a.id
+JOIN users u
+    ON vp.resident_id = u.id
+WHERE vp.id = ${id}
+LIMIT 1;
+  `;
+
+  return result[0] ?? null;
+};
