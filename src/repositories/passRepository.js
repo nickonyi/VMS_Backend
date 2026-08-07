@@ -94,3 +94,155 @@ LIMIT 1;
 
   return result[0] ?? null;
 };
+
+export const getResidentPassesFromDB = async (residentId) => {
+  return await prisma.$queryRaw`
+    SELECT
+      vp.id,
+      v.full_name AS guest_name,
+      v.phone AS guest_phone,
+      v.vehicle_reg,
+      a.unit_number,
+      a.block,
+      vp.purpose,
+      vp.notes,
+      vp.num_of_guests,
+      vp.expected_arrival_at AS visit_date,
+      vp.expires_at,
+      vp.qr_token,
+      vp.status,
+      vp.created_at
+    FROM visitor_passes vp
+    INNER JOIN visitors v
+      ON vp.visitor_id = v.id
+    INNER JOIN apartments a
+      ON vp.apartment_id = a.id
+    WHERE vp.resident_id = ${residentId}
+    ORDER BY vp.created_at DESC;
+  `;
+};
+
+export const getPassByTokenFromDB = async (token) => {
+  const result = await prisma.$queryRaw`
+    SELECT
+      vp.id,
+      v.full_name AS guest_name,
+      v.phone AS guest_phone,
+      v.vehicle_reg,
+      vp.purpose,
+      vp.notes,
+      vp.num_of_guests,
+      vp.expected_arrival_at AS visit_date,
+      vp.expires_at,
+      vp.qr_token,
+      vp.status,
+      vp.created_at,
+
+      u.id AS resident_id,
+      u.full_name AS resident_name,
+      u.phone AS resident_phone,
+
+      a.unit_number,
+      a.block,
+      a.floor
+
+    FROM visitor_passes vp
+
+    JOIN visitors v
+      ON vp.visitor_id = v.id
+
+    JOIN users u
+      ON vp.resident_id = u.id
+
+    JOIN apartments a
+      ON vp.apartment_id = a.id
+
+    WHERE vp.qr_token = ${token}
+
+    LIMIT 1;
+  `;
+
+  return result[0] ?? null;
+};
+
+export const checkInPassFromDB = async (passId, guardId) => {
+  return await prisma.$transaction(async (tx) => {
+    const updatedPass = await tx.$queryRaw`
+      UPDATE visitor_passes
+      SET
+        status = 'checked_in',
+        updated_at = CURRENT_TIMESTAMP
+      WHERE id = ${passId}
+        AND status = 'pending'
+      RETURNING
+        id,
+        visitor_id,
+        resident_id,
+        apartment_id,
+        status,
+        expected_arrival_at,
+        expires_at,
+        qr_token;
+    `;
+
+    if (updatedPass.length === 0) {
+      return null;
+    }
+
+    await tx.$queryRaw`
+      INSERT INTO visit_logs (
+        visitor_pass_id,
+        guard_id,
+        action
+      )
+      VALUES (
+        ${passId},
+        ${guardId},
+        'check_in'
+      );
+    `;
+
+    return updatedPass[0];
+  });
+};
+
+export const checkOutPassFromDB = async (passId, guardId) => {
+  return await prisma.$transaction(async (tx) => {
+    const updatedPass = await tx.$queryRaw`
+      UPDATE visitor_passes
+      SET
+        status = 'checked_out',
+        updated_at = CURRENT_TIMESTAMP
+      WHERE id = ${passId}
+        AND status = 'checked_in'
+      RETURNING
+        id,
+        visitor_id,
+        resident_id,
+        apartment_id,
+        status,
+        expected_arrival_at,
+        expires_at,
+        qr_token;
+    `;
+
+    if (updatedPass.length === 0) {
+      return null;
+    }
+
+    await tx.$queryRaw`
+      INSERT INTO visit_logs (
+        visitor_pass_id,
+        guard_id,
+        action
+      )
+      VALUES (
+        ${passId},
+        ${guardId},
+        'check_out'
+      );
+    `;
+
+    return updatedPass[0];
+  });
+};
