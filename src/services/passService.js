@@ -61,8 +61,6 @@ export const checkInVisitorPass = async (passId, guardId) => {
     throw error;
   }
 
-  console.log(pass);
-
   return pass;
 };
 
