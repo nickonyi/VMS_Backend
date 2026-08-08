@@ -6,7 +6,7 @@ import {
   getPassById,
   getPassByTokenService,
   getResidentPasses,
-} from "../services/passService.js";
+} from "../services/residentService.js";
 import { matchedData, validationResult } from "express-validator";
 
 export const createVisitorPass = async (req, res, next) => {

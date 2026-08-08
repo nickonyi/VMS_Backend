@@ -8,7 +8,7 @@ import {
   getPassByIdFromDB,
   getPassByTokenFromDB,
   getResidentPassesFromDB,
-} from "../repositories/passRepository.js";
+} from "../repositories/residentRepository.js";
 
 export const createVisitorPassService = async (residentId, data) => {
   const apartment = await getApartmentByResidentIdFromDB(residentId);

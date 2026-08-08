@@ -4,8 +4,11 @@ import "dotenv/config";
 import { sessionMiddleware } from "./middlewares/sessionMiddleware.js";
 import passport from "./config/passportConfig.js";
 import authRoutes from "./routes/authRoutes.js";
-import passRoutes from "./routes/passRoutes.js";
+import residentRoutes from "./routes/residentRoutes.js";
+import guardRoutes from "./routes/guardRoutes.js";
 import { globalErrorHandler } from "./middlewares/errorMiddleWare.js";
+import { requireRole } from "./middlewares/roleMiddleware.js";
+import { ensureAuth } from "./middlewares/authMiddleware.js";
 
 const app = express();
 
@@ -22,7 +25,8 @@ app.use(passport.session());
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
-app.use("/api/passes", passRoutes);
+app.use("/api/resident", ensureAuth, requireRole("resident"), residentRoutes);
+app.use("/api/guard", ensureAuth, requireRole("guard"), guardRoutes);
 
 app.use(globalErrorHandler);
 
