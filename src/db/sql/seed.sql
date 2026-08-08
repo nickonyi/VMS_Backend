@@ -53,3 +53,171 @@ VALUES
 'resident'
 );
 
+
+
+-- =====================================================
+-- APARTMENTS
+-- =====================================================
+
+INSERT INTO apartments (
+    id,
+    unit_number,
+    block,
+    floor,
+    resident_id
+)
+VALUES
+(
+    'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+    'A101',
+    'A',
+    1,
+    '0714a395-3abf-4f81-9d85-a16963140c4e'
+),
+(
+    'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+    'A102',
+    'A',
+    1,
+    '6715b2c3-4d5e-6f78-90ab-cdef12345678'
+);
+
+
+-- =====================================================
+-- VISITORS
+-- =====================================================
+
+INSERT INTO visitors (
+    id,
+    full_name,
+    phone,
+    vehicle_reg
+)
+VALUES
+(
+    'aaaaaaaa-1111-1111-1111-111111111111',
+    'David Mwangi',
+    '+254711111111',
+    'KDA123A'
+),
+(
+    'bbbbbbbb-2222-2222-2222-222222222222',
+    'Sarah Achieng',
+    '+254722222222',
+    NULL
+),
+(
+    'cccccccc-3333-3333-3333-333333333333',
+    'Kevin Otieno',
+    '+254733333333',
+    'KCB456B'
+);
+
+
+-- =====================================================
+-- VISITOR PASSES
+-- =====================================================
+
+INSERT INTO visitor_passes (
+    id,
+    visitor_id,
+    resident_id,
+    apartment_id,
+    purpose,
+    notes,
+    num_of_guests,
+    expected_arrival_at,
+    expires_at,
+    qr_token,
+    status
+)
+VALUES
+(
+    'aaaa1111-1111-1111-1111-111111111111',
+    'aaaaaaaa-1111-1111-1111-111111111111',
+    '11111111-1111-1111-1111-111111111111',
+    'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+    'family',
+    'Family visit',
+    2,
+    NOW() + INTERVAL '1 hour',
+    NOW() + INTERVAL '5 hours',
+    '10000000-0000-0000-0000-000000000001',
+    'pending'
+),
+(
+    'bbbb2222-2222-2222-2222-222222222222',
+    'bbbbbbbb-2222-2222-2222-222222222222',
+    '22222222-2222-2222-2222-222222222222',
+    'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+    'friend',
+    'Weekend visit',
+    1,
+    NOW() - INTERVAL '2 hours',
+    NOW() + INTERVAL '2 hours',
+    '20000000-0000-0000-0000-000000000002',
+    'checked_in'
+),
+(
+    'cccc3333-3333-3333-3333-333333333333',
+    'cccccccc-3333-3333-3333-333333333333',
+    '11111111-1111-1111-1111-111111111111',
+    'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+    'delivery',
+    'Package delivery',
+    1,
+    NOW() - INTERVAL '1 day',
+    NOW() - INTERVAL '20 hours',
+    '30000000-0000-0000-0000-000000000003',
+    'checked_out'
+);
+
+
+-- =====================================================
+-- VISIT LOGS
+-- =====================================================
+
+-- Check-in for the second pass
+INSERT INTO visit_logs (
+    id,
+    visitor_pass_id,
+    guard_id,
+    action,
+    timestamp
+)
+VALUES
+(
+    'aaaa4444-4444-4444-4444-444444444444',
+    'bbbb2222-2222-2222-2222-222222222222',
+    '33333333-3333-3333-3333-333333333333',
+    'check_in',
+    NOW() - INTERVAL '1 hour'
+);
+
+
+-- Check-in and check-out for the third pass
+INSERT INTO visit_logs (
+    id,
+    visitor_pass_id,
+    guard_id,
+    action,
+    timestamp
+)
+VALUES
+(
+    'bbbb5555-5555-5555-5555-555555555555',
+    'cccc3333-3333-3333-3333-333333333333',
+    '33333333-3333-3333-3333-333333333333',
+    'check_in',
+    NOW() - INTERVAL '23 hours'
+),
+(
+    'cccc6666-6666-6666-6666-666666666666',
+    'cccc3333-3333-3333-3333-333333333333',
+    '33333333-3333-3333-3333-333333333333',
+    'check_out',
+    NOW() - INTERVAL '21 hours'
+);
+
+
+COMMIT;

@@ -21,6 +21,7 @@ DROP TYPE IF EXISTS user_status CASCADE;
 DROP TYPE IF EXISTS user_role CASCADE;
 DROP TYPE IF EXISTS visit_purpose CASCADE;
 
+
 -- =====================================================
 -- Enums
 -- =====================================================
@@ -58,6 +59,7 @@ CREATE TYPE visit_purpose AS ENUM (
     'other'
 );
 
+
 -- =====================================================
 -- Users
 -- =====================================================
@@ -74,9 +76,10 @@ CREATE TABLE users (
     role user_role NOT NULL,
     status user_status NOT NULL DEFAULT 'active',
 
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
 
 -- =====================================================
 -- Apartments
@@ -91,8 +94,8 @@ CREATE TABLE apartments (
 
     resident_id UUID UNIQUE,
 
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_apartment_resident
         FOREIGN KEY (resident_id)
@@ -102,6 +105,7 @@ CREATE TABLE apartments (
     CONSTRAINT unique_unit
         UNIQUE(unit_number, block)
 );
+
 
 -- =====================================================
 -- Visitors
@@ -114,9 +118,10 @@ CREATE TABLE visitors (
     phone VARCHAR(20),
     vehicle_reg VARCHAR(20),
 
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
 
 -- =====================================================
 -- Visitor Passes
@@ -134,16 +139,16 @@ CREATE TABLE visitor_passes (
 
     num_of_guests INTEGER NOT NULL DEFAULT 1,
 
-    expected_arrival_at TIMESTAMP NOT NULL,
-    expires_at TIMESTAMP NOT NULL,
+    expected_arrival_at TIMESTAMPTZ NOT NULL,
+    expires_at TIMESTAMPTZ NOT NULL,
 
     qr_token UUID NOT NULL UNIQUE DEFAULT gen_random_uuid(),
 
     status visitor_pass_status NOT NULL DEFAULT 'pending',
 
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    cancelled_at TIMESTAMP,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    cancelled_at TIMESTAMPTZ,
 
     CONSTRAINT fk_pass_visitor
         FOREIGN KEY (visitor_id)
@@ -167,6 +172,7 @@ CREATE TABLE visitor_passes (
         CHECK (expires_at > expected_arrival_at)
 );
 
+
 -- =====================================================
 -- Visit Logs
 -- =====================================================
@@ -179,7 +185,7 @@ CREATE TABLE visit_logs (
 
     action visit_action NOT NULL,
 
-    timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    timestamp TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_log_pass
         FOREIGN KEY (visitor_pass_id)
@@ -192,30 +198,32 @@ CREATE TABLE visit_logs (
         ON DELETE RESTRICT
 );
 
+
 -- =====================================================
 -- Indexes
 -- =====================================================
 
 CREATE INDEX idx_users_email
-ON users(email);
+    ON users(email);
 
 CREATE INDEX idx_pass_resident
-ON visitor_passes(resident_id);
+    ON visitor_passes(resident_id);
 
 CREATE INDEX idx_pass_visitor
-ON visitor_passes(visitor_id);
+    ON visitor_passes(visitor_id);
 
 CREATE INDEX idx_pass_status
-ON visitor_passes(status);
+    ON visitor_passes(status);
 
 CREATE INDEX idx_pass_arrival
-ON visitor_passes(expected_arrival_at);
+    ON visitor_passes(expected_arrival_at);
 
 CREATE INDEX idx_logs_pass
-ON visit_logs(visitor_pass_id);
+    ON visit_logs(visitor_pass_id);
 
 CREATE INDEX idx_logs_guard
-ON visit_logs(guard_id);
+    ON visit_logs(guard_id);
+
 
 -- =====================================================
 -- Database Created Successfully

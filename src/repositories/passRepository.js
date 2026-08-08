@@ -136,12 +136,34 @@ export const getPassByTokenFromDB = async (token) => {
       vp.purpose,
       vp.notes,
       vp.num_of_guests,
+
       vp.expected_arrival_at AS visit_date,
       vp.expected_arrival_at::time AS arrival_time,
       vp.expires_at::time AS expiry_time,
+
       vp.qr_token,
       vp.status,
       vp.created_at,
+
+      -- Actual check-in time
+      (
+        SELECT vl.timestamp
+        FROM visit_logs vl
+        WHERE vl.visitor_pass_id = vp.id
+          AND vl.action = 'check_in'
+        ORDER BY vl.timestamp DESC
+        LIMIT 1
+      ) AS checked_in_at,
+
+      -- Actual check-out time
+      (
+        SELECT vl.timestamp
+        FROM visit_logs vl
+        WHERE vl.visitor_pass_id = vp.id
+          AND vl.action = 'check_out'
+        ORDER BY vl.timestamp DESC
+        LIMIT 1
+      ) AS checked_out_at,
 
       u.id AS resident_id,
       u.full_name AS resident_name,
