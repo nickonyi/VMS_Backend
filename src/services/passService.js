@@ -1,4 +1,5 @@
 import {
+  cancelVisitorPassFromDB,
   checkInPassFromDB,
   checkOutPassFromDB,
   createVisitorInDB,
@@ -79,4 +80,36 @@ export const checkOutVisitorPass = async (passId, guardId) => {
   }
 
   return pass;
+};
+
+export const cancelVisitorPass = async (passId, residentId) => {
+  const pass = await getPassByIdFromDB(passId);
+
+  if (!pass) {
+    const error = new Error("Visitor pass not found.");
+    error.statusCode = 404;
+    error.isOperational = true;
+    throw error;
+  }
+
+  if (pass.resident_id !== residentId) {
+    const error = new Error("You are not authorized to cancel this pass.");
+    error.statusCode = 403;
+    error.isOperational = true;
+    throw error;
+  }
+
+  if (pass.status !== "pending") {
+    const error = new Error(
+      `This visitor pass cannot be cancelled because it is already ${pass.status}.`,
+    );
+
+    error.statusCode = 400;
+    error.isOperational = true;
+    throw error;
+  }
+
+  const cancelledPass = await cancelVisitorPassFromDB(passId, residentId);
+
+  return cancelledPass;
 };

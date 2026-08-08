@@ -1,4 +1,5 @@
 import {
+  cancelVisitorPass,
   checkInVisitorPass,
   checkOutVisitorPass,
   createVisitorPassService,
@@ -71,6 +72,22 @@ export const getMyVisitorPasses = async (req, res, next) => {
     res.status(200).json({
       success: true,
       data: passes,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const cancelPass = async (req, res, next) => {
+  try {
+    const { passId } = req.params;
+
+    const pass = await cancelVisitorPass(passId, req.user.id);
+
+    res.status(200).json({
+      success: true,
+      message: "Visitor pass cancelled successfully.",
+      pass,
     });
   } catch (err) {
     next(err);

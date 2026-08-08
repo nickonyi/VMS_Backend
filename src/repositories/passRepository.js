@@ -82,6 +82,7 @@ export const getPassByIdFromDB = async (id) => {
     vp.created_at,
     a.unit_number,
     a.block,
+    u.id AS resident_id,
     u.full_name AS resident_name
 FROM visitor_passes vp
 JOIN visitors v
@@ -272,4 +273,22 @@ export const checkOutPassFromDB = async (passId, guardId) => {
 
     return updatedPass[0];
   });
+};
+
+export const cancelVisitorPassFromDB = async (passId, residentId) => {
+  const result = await prisma.$queryRaw`
+    UPDATE visitor_passes
+    SET
+      status = 'cancelled',
+      cancelled_at = CURRENT_TIMESTAMP,
+      updated_at = CURRENT_TIMESTAMP
+    WHERE id = ${passId}
+      AND resident_id = ${residentId}
+      AND status = 'pending'
+    RETURNING *;
+  `;
+
+  console.log("CANCELLED PASS:", result[0]);
+
+  return result[0] ?? null;
 };
