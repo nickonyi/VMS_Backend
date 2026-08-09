@@ -10,7 +10,11 @@ import {
   getResidentPassesFromDB,
 } from "../repositories/residentRepository.js";
 
-export const createVisitorPassService = async (residentId, data) => {
+export const createVisitorPassService = async (
+  residentId,
+  manualCode,
+  data,
+) => {
   const apartment = await getApartmentByResidentIdFromDB(residentId);
 
   if (!apartment) {
@@ -28,6 +32,7 @@ export const createVisitorPassService = async (residentId, data) => {
     residentId,
     apartmentId: apartment.id,
     purpose: data.purpose,
+    manualCode,
     numOfGuests: data.numberOfGuests,
     expectedArrivalAt: data.expectedArrivalAt,
     expiresAt: data.expiresAt,

@@ -8,6 +8,7 @@ import {
   getResidentPasses,
 } from "../services/residentService.js";
 import { matchedData, validationResult } from "express-validator";
+import { generateManualCode } from "../utils/util.js";
 
 export const createVisitorPass = async (req, res, next) => {
   const errors = validationResult(req);
@@ -27,8 +28,13 @@ export const createVisitorPass = async (req, res, next) => {
     });
   }
 
+  const manualCode = generateManualCode();
   try {
-    const pass = await createVisitorPassService(req.user.id, matchedData(req));
+    const pass = await createVisitorPassService(
+      req.user.id,
+      manualCode,
+      matchedData(req),
+    );
     console.log(pass);
 
     return res.status(201).json({

@@ -34,6 +34,7 @@ export const createVisitorPassInDB = async ({
   residentId,
   apartmentId,
   purpose,
+  manualCode,
   numOfGuests,
   expectedArrivalAt,
   expiresAt,
@@ -44,6 +45,7 @@ export const createVisitorPassInDB = async ({
       resident_id,
       apartment_id,
       purpose,
+      manualCode,
       num_of_guests,
       expected_arrival_at,
       expires_at
@@ -53,6 +55,7 @@ export const createVisitorPassInDB = async ({
       ${residentId},
       ${apartmentId},
       ${purpose},
+      ${manualCode},
       ${numOfGuests},
       ${expectedArrivalAt},
       ${expiresAt}
