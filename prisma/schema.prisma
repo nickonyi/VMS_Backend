@@ -58,7 +58,7 @@ model visitor_passes {
   resident_id         String              @db.Uuid
   apartment_id        String              @db.Uuid
   purpose             visit_purpose
-  manual_code         String?             @unique @db.VarChar(6)
+  manual_code         String?             @unique @db.VarChar(10)
   num_of_guests       Int                 @default(1)
   expected_arrival_at DateTime            @db.Timestamptz(6)
   expires_at          DateTime            @db.Timestamptz(6)

@@ -35,7 +35,6 @@ export const createVisitorPass = async (req, res, next) => {
       manualCode,
       matchedData(req),
     );
-    console.log(pass);
 
     return res.status(201).json({
       success: true,
@@ -112,6 +111,7 @@ export const getPassByToken = async (req, res, next) => {
     }
 
     const pass = await getPassByTokenService(t);
+    console.log(pass);
 
     if (!pass) {
       return res.status(404).json({

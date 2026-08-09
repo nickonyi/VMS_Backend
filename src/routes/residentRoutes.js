@@ -15,7 +15,6 @@ import { requireRole } from "../middlewares/roleMiddleware.js";
 const router = Router();
 
 router.get("/my-passes", getMyVisitorPasses);
-router.get("/verify", getPassByToken);
 router.get("/:id", getPass);
 
 router.post("/", validateCreateVisitorPass, createVisitorPass);
