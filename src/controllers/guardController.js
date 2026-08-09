@@ -1,4 +1,6 @@
 import {
+  checkInVisitorPass,
+  checkOutVisitorPass,
   getPassByManualCodeService,
   getVisitHistoryService,
 } from "../services/guardService.js";
@@ -28,7 +30,6 @@ export const getPassByCode = async (req, res, next) => {
     }
 
     const pass = await getPassByManualCodeService(t);
-    console.log(pass);
 
     if (!pass) {
       return res.status(404).json({

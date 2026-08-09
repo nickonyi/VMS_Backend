@@ -83,6 +83,7 @@ model visitors {
   full_name      String           @db.VarChar(100)
   phone          String?          @db.VarChar(20)
   vehicle_reg    String?          @db.VarChar(20)
+  email          String?          @db.VarChar(255)
   created_at     DateTime         @default(now()) @db.Timestamptz(6)
   updated_at     DateTime         @default(now()) @db.Timestamptz(6)
   visitor_passes visitor_passes[]

@@ -11,17 +11,24 @@ export const getApartmentByResidentIdFromDB = async (residentId) => {
   return apartment[0] ?? null;
 };
 
-export const createVisitorInDB = async ({ fullName, phone, vehicleReg }) => {
+export const createVisitorInDB = async ({
+  fullName,
+  phone,
+  vehicleReg,
+  email,
+}) => {
   const visitor = await prisma.$queryRaw`
     INSERT INTO visitors (
       full_name,
       phone,
-      vehicle_reg
+      vehicle_reg,
+email
     )
     VALUES (
       ${fullName},
       ${phone},
-      ${vehicleReg}
+      ${vehicleReg},
+       ${email}
     )
     RETURNING *;
   `;
@@ -290,8 +297,6 @@ export const cancelVisitorPassFromDB = async (passId, residentId) => {
       AND status = 'pending'
     RETURNING *;
   `;
-
-  console.log("CANCELLED PASS:", result[0]);
 
   return result[0] ?? null;
 };

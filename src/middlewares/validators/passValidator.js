@@ -13,7 +13,12 @@ export const validateCreateVisitorPass = [
     .trim()
     .isLength({ max: 20 })
     .withMessage("Guest phone cannot exceed 20 characters."),
-
+  body("guestEmail")
+    .trim()
+    .isEmail()
+    .withMessage("Please provide a valid email address.")
+    .isLength({ max: 255 })
+    .withMessage("Email cannot exceed 255 characters."),
   body("numberOfGuests")
     .isInt({ min: 1 })
     .withMessage("Number of guests must be at least 1."),

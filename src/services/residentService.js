@@ -25,6 +25,7 @@ export const createVisitorPassService = async (
     fullName: data.guestName,
     phone: data.guestPhone,
     vehicleReg: data.vehicleReg,
+    email: data.guestEmail,
   });
 
   const pass = await createVisitorPassInDB({
