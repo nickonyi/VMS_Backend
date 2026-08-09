@@ -45,3 +45,40 @@ export const getPassByCode = async (req, res, next) => {
     next(err);
   }
 };
+
+export const checkInPass = async (req, res, next) => {
+  try {
+    const passId = req.params.id;
+
+    // Passport gives us the authenticated user.
+    const guardId = req.user.id;
+
+    const pass = await checkInVisitorPass(passId, guardId);
+
+    return res.status(200).json({
+      success: true,
+      message: "Visitor checked in successfully.",
+      data: pass,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const checkOutPass = async (req, res, next) => {
+  try {
+    const passId = req.params.id;
+
+    const guardId = req.user.id;
+
+    const pass = await checkOutVisitorPass(passId, guardId);
+
+    return res.status(200).json({
+      success: true,
+      message: "Visitor checked out successfully.",
+      data: pass,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
