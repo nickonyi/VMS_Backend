@@ -9,6 +9,7 @@ import {
   getPassByTokenFromDB,
   getResidentPassesFromDB,
 } from "../repositories/residentRepository.js";
+import { sendVisitorCodeEmail } from "./emailService.js";
 
 export const createVisitorPassService = async (
   residentId,
@@ -37,6 +38,15 @@ export const createVisitorPassService = async (
     numOfGuests: data.numberOfGuests,
     expectedArrivalAt: data.expectedArrivalAt,
     expiresAt: data.expiresAt,
+  });
+
+  await sendVisitorCodeEmail({
+    email: visitor.email,
+    guestName: visitor.full_name,
+    manualCode,
+    visitDate: data.visitDate,
+    arrivalTime: data.arrivalTime,
+    expiryTime: data.expiryTime,
   });
 
   return pass;
