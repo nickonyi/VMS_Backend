@@ -10,10 +10,3 @@ export const transporter = nodemailer.createTransport({
     pass: process.env.MAIL_PASSWORD,
   },
 });
-
-try {
-  await transporter.verify();
-  console.log("SMTP connection successful");
-} catch (error) {
-  console.error("SMTP connection failed:", error);
-}
