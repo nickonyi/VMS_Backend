@@ -1,9 +1,14 @@
-import { getVisitHistoryFromDB } from "../repositories/guardRespository.js";
+import { Network } from "node:inspector/promises";
+import {
+  getVisitHistoryFromDB,
+  markPassExpired,
+} from "../repositories/guardRespository.js";
 import {
   checkInPassFromDB,
   checkOutPassFromDB,
   getPassByCodeFromDB,
 } from "../repositories/residentRepository.js";
+import AppError from "../utils/appError.js";
 
 export const getVisitHistoryService = async () => {
   const visits = await getVisitHistoryFromDB();
@@ -12,7 +17,22 @@ export const getVisitHistoryService = async () => {
 };
 
 export const getPassByManualCodeService = async (code) => {
-  return await getPassByCodeFromDB(code);
+  const pass = await getPassByCodeFromDB(code);
+
+  if (!pass) {
+    throw new AppError("Invalid visitor code", 404);
+  }
+
+  if (pass.status === "pending" && pass.expiry_time <= new Date()) {
+    const expiredPass = await markPassExpired(pass.id);
+
+    return {
+      ...pass,
+      status: expiredPass?.status ?? "expired",
+    };
+  }
+
+  return pass;
 };
 
 export const checkInVisitorPass = async (passId, guardId) => {

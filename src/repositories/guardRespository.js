@@ -59,3 +59,16 @@ export const getVisitHistoryFromDB = async () => {
 
   return result;
 };
+
+export const markPassExpired = async (passId) => {
+  const result = await prisma.$queryRaw`
+  UPDATE visitor_passes
+  SET status = 'expired'
+  WHERE id=${passId}
+   AND status ='pending'
+   AND expires_at <= NOW()
+   RETURNING  *
+  `;
+
+  return result[0] ?? null;
+};

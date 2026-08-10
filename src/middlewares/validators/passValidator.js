@@ -37,7 +37,17 @@ export const validateCreateVisitorPass = [
 
   body("expectedArrivalAt")
     .isISO8601()
-    .withMessage("Expected arrival time is invalid."),
+    .withMessage("Expected arrival time is invalid.")
+    .custom((value) => {
+      const arrivalDate = new Date(value);
+      const today = new Date();
+
+      today.setHours(0, 0, 0, 0);
+
+      if (arrivalDate < today) {
+        throw Error("Expected arrival cannot be before today");
+      }
+    }),
 
   body("expiresAt")
     .isISO8601()
