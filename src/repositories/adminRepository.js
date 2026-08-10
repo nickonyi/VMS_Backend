@@ -41,3 +41,41 @@ export const getAllVisitorPassesFromDB = async () => {
 
   return result;
 };
+
+export const getDashboardStatsFromDB = async () => {
+  const result = await prisma.$queryRaw`
+    SELECT
+      COUNT(*) FILTER (
+        WHERE expected_arrival_at::date = CURRENT_DATE
+      )::int AS visitorsToday,
+
+      COUNT(*) FILTER (
+        WHERE status = 'checked_in'
+      )::int AS active,
+
+      COUNT(*) FILTER (
+        WHERE status = 'checked_out'
+      )::int AS checkedOut,
+
+      COUNT(*) FILTER (
+        WHERE status = 'pending'
+          AND expires_at > NOW()
+      )::int AS pending,
+
+      (
+        SELECT COUNT(*)::int
+        FROM users
+        WHERE role = 'resident'
+      ) AS totalResidents,
+
+      (
+        SELECT COUNT(*)::int
+        FROM users
+        WHERE role = 'guard'
+      ) AS totalGuards
+
+    FROM visitor_passes;
+  `;
+
+  return result[0];
+};

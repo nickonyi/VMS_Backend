@@ -1,5 +1,12 @@
-import { getAllVisitorPassesFromDB } from "../repositories/adminRepository.js";
+import {
+  getAllVisitorPassesFromDB,
+  getDashboardStatsFromDB,
+} from "../repositories/adminRepository.js";
 
 export const getAllVisitorPassesService = async () => {
-  return await getAllVisitorPassesFromDB();
+  return getAllVisitorPassesFromDB();
+};
+
+export const getDashboardStatsService = async () => {
+  return getDashboardStatsFromDB();
 };

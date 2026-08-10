@@ -1,4 +1,7 @@
-import { getAllVisitorPassesService } from "../services/adminService.js";
+import {
+  getAllVisitorPassesService,
+  getDashboardStatsService,
+} from "../services/adminService.js";
 
 export const getAllVisitorPasses = async (req, res, next) => {
   try {
@@ -10,5 +13,18 @@ export const getAllVisitorPasses = async (req, res, next) => {
     });
   } catch (err) {
     return next(err);
+  }
+};
+
+export const getDashboardStats = async (req, res, next) => {
+  try {
+    const stats = await getDashboardStatsService();
+
+    return res.status(200).json({
+      success: true,
+      stats,
+    });
+  } catch (err) {
+    next(err);
   }
 };
