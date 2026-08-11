@@ -2,42 +2,54 @@ import { prisma } from "../lib/prisma.js";
 
 export const getAllVisitorPassesFromDB = async () => {
   const result = await prisma.$queryRaw`
-  SELECT
-    vp.id,
-    vp.num_of_guests,
-    vp.purpose,
-    vp.expected_arrival_at AS visit_date,
-    vp.expected_arrival_at::time AS arrival_time,
-    vp.expires_at::time AS expiry_time,
-    vp.status,
-    vp.created_at,
-    vp.cancelled_at,
+    SELECT
+      vp.id,
+      vp.num_of_guests,
+      vp.purpose,
+      vp.expected_arrival_at AS visit_date,
+      vp.expected_arrival_at::time AS arrival_time,
+      vp.expires_at::time AS expiry_time,
+      vp.status,
+      vp.created_at,
+      vp.cancelled_at,
 
-    v.full_name AS guest_name,
-    v.phone AS guest_phone,
-    v.email AS guest_email,
-    v.vehicle_reg,
+      v.full_name AS guest_name,
+      v.phone AS guest_phone,
+      v.email AS guest_email,
+      v.vehicle_reg,
 
-    u.full_name AS resident_name,
-    u.email AS resident_email,
+      u.full_name AS resident_name,
+      u.email AS resident_email,
 
-    a.unit_number,
-    a.block,
-    a.floor
+      a.unit_number,
+      a.block,
+      a.floor,
 
-  FROM visitor_passes vp
+      vl.checked_in_at
 
-  JOIN visitors v
-    ON vp.visitor_id = v.id
+    FROM visitor_passes vp
 
-  JOIN users u
-    ON vp.resident_id = u.id
+    JOIN visitors v
+      ON vp.visitor_id = v.id
 
-  JOIN apartments a
-    ON vp.apartment_id = a.id
+    JOIN users u
+      ON vp.resident_id = u.id
 
-  ORDER BY vp.created_at DESC
-`;
+    JOIN apartments a
+      ON vp.apartment_id = a.id
+
+    LEFT JOIN (
+      SELECT
+        visitor_pass_id,
+        MAX(timestamp) AS checked_in_at
+      FROM visit_logs
+      WHERE action = 'check_in'
+      GROUP BY visitor_pass_id
+    ) vl
+      ON vl.visitor_pass_id = vp.id
+
+    ORDER BY vp.created_at DESC
+  `;
 
   return result;
 };
@@ -76,8 +88,6 @@ export const getDashboardStatsFromDB = async () => {
 
     FROM visitor_passes;
   `;
-
-  console.log(result[0]);
 
   return result[0];
 };
