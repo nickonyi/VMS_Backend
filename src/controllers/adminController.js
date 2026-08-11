@@ -5,11 +5,11 @@ import {
 
 export const getAllVisitorPasses = async (req, res, next) => {
   try {
-    const passes = await getAllVisitorPassesService();
+    const visits = await getAllVisitorPassesService();
 
     return res.status(200).json({
       success: true,
-      passes,
+      visits,
     });
   } catch (err) {
     return next(err);
@@ -19,6 +19,7 @@ export const getAllVisitorPasses = async (req, res, next) => {
 export const getDashboardStats = async (req, res, next) => {
   try {
     const stats = await getDashboardStatsService();
+    console.log(stats);
 
     return res.status(200).json({
       success: true,

@@ -40,15 +40,20 @@ export const validateCreateVisitorPass = [
     .withMessage("Expected arrival time is invalid.")
     .custom((value) => {
       const arrivalDate = new Date(value);
-      const today = new Date();
 
+      if (Number.isNaN(arrivalDate.getTime())) {
+        throw new Error("Expected arrival time is invalid.");
+      }
+
+      const today = new Date();
       today.setHours(0, 0, 0, 0);
 
       if (arrivalDate < today) {
-        throw Error("Expected arrival cannot be before today");
+        throw new Error("Expected arrival cannot be before today.");
       }
-    }),
 
+      return true;
+    }),
   body("expiresAt")
     .isISO8601()
     .withMessage("Expiry time is invalid.")

@@ -47,7 +47,7 @@ export const getDashboardStatsFromDB = async () => {
     SELECT
       COUNT(*) FILTER (
         WHERE expected_arrival_at::date = CURRENT_DATE
-      )::int AS visitorsToday,
+      )::int AS "visitorsToday",
 
       COUNT(*) FILTER (
         WHERE status = 'checked_in'
@@ -55,7 +55,7 @@ export const getDashboardStatsFromDB = async () => {
 
       COUNT(*) FILTER (
         WHERE status = 'checked_out'
-      )::int AS checkedOut,
+      )::int AS "checkedOut",
 
       COUNT(*) FILTER (
         WHERE status = 'pending'
@@ -66,16 +66,18 @@ export const getDashboardStatsFromDB = async () => {
         SELECT COUNT(*)::int
         FROM users
         WHERE role = 'resident'
-      ) AS totalResidents,
+      ) AS "totalResidents",
 
       (
         SELECT COUNT(*)::int
         FROM users
         WHERE role = 'guard'
-      ) AS totalGuards
+      ) AS "totalGuards"
 
     FROM visitor_passes;
   `;
+
+  console.log(result[0]);
 
   return result[0];
 };
