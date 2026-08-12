@@ -91,3 +91,29 @@ export const getDashboardStatsFromDB = async () => {
 
   return result[0];
 };
+
+export const getAllUsersFromDB = async () => {
+  const result = await prisma.$queryRaw`
+    SELECT
+      u.id,
+      u.full_name,
+      u.email,
+      u.phone,
+      u.role,
+      u.status,
+      u.created_at,
+
+      a.unit_number,
+      a.block,
+      a.floor
+
+    FROM users u
+
+    LEFT JOIN apartments a
+      ON a.resident_id = u.id
+
+    ORDER BY u.created_at DESC
+  `;
+
+  return result;
+};

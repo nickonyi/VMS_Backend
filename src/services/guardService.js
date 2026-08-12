@@ -9,6 +9,7 @@ import {
 } from "../repositories/residentRepository.js";
 import { getPassByCodeFromDB } from "../repositories/guardRespository.js";
 import AppError from "../utils/appError.js";
+import { getAllUsersFromDB } from "../repositories/adminRepository.js";
 
 export const getVisitHistoryService = async () => {
   const visits = await getVisitHistoryFromDB();
@@ -67,4 +68,8 @@ export const checkOutVisitorPass = async (passId, guardId) => {
   }
 
   return pass;
+};
+
+export const getAllUsers = async () => {
+  return getAllUsersFromDB();
 };
