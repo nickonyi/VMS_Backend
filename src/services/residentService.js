@@ -22,6 +22,8 @@ export const createVisitorPassService = async (
     throw new Error("Resident has no apartment assigned.");
   }
 
+  console.log(data);
+
   const visitor = await createVisitorInDB({
     fullName: data.guestName,
     phone: data.guestPhone,
@@ -44,9 +46,9 @@ export const createVisitorPassService = async (
     email: visitor.email,
     guestName: visitor.full_name,
     manualCode,
-    visitDate: data.visitDate,
-    arrivalTime: data.arrivalTime,
-    expiryTime: data.expiryTime,
+    visitDate: data.expectedArrivalAt,
+    arrivalTime: data.expectedArrivalAt,
+    expiryTime: data.expiresAt,
   });
 
   return pass;

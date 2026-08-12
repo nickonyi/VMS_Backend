@@ -12,8 +12,6 @@ export const createVisitorPass = async (req, res, next) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
-    console.log(errors.array());
-
     const mappedErrors = {};
 
     errors.array().forEach((err) => {

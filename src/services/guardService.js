@@ -6,8 +6,8 @@ import {
 import {
   checkInPassFromDB,
   checkOutPassFromDB,
-  getPassByCodeFromDB,
 } from "../repositories/residentRepository.js";
+import { getPassByCodeFromDB } from "../repositories/guardRespository.js";
 import AppError from "../utils/appError.js";
 
 export const getVisitHistoryService = async () => {
