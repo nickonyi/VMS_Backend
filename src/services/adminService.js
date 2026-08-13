@@ -3,10 +3,21 @@ import {
   getAllVisitorPassesFromDB,
   getDashboardStatsFromDB,
   updateUserInDB,
+  updateVisitorPassInDB,
 } from "../repositories/adminRepository.js";
 
-export const getAllVisitorPassesService = async () => {
-  return getAllVisitorPassesFromDB();
+export const getAllVisitorPassesService = async ({
+  page,
+  limit,
+  status,
+  search,
+}) => {
+  return getAllVisitorPassesFromDB({
+    page,
+    limit,
+    status,
+    search,
+  });
 };
 
 export const getDashboardStatsService = async () => {
@@ -46,4 +57,18 @@ export const createUserService = async ({
     role,
     phone,
   });
+};
+
+export const updateVisitorPassService = async (id, status) => {
+  if (status !== "cancelled") {
+    throw new Error("Invalid visitor pass status.");
+  }
+
+  const pass = await updateVisitorPassInDB(id, status);
+
+  if (!pass) {
+    throw new Error("Visitor pass not found.");
+  }
+
+  return pass;
 };

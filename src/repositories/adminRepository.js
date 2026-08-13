@@ -1,15 +1,27 @@
 import { prisma } from "../lib/prisma.js";
 import { hashPassword } from "../utils/hash.js";
 
-export const getAllVisitorPassesFromDB = async () => {
-  const result = await prisma.$queryRaw`
+export const getAllVisitorPassesFromDB = async ({
+  page = 1,
+  limit = 10,
+  status = "all",
+  search = "",
+}) => {
+  const offset = (page - 1) * limit;
+  const normalizedSearch = search.trim();
+
+  const passes = await prisma.$queryRaw`
     SELECT
       vp.id,
       vp.num_of_guests,
       vp.purpose,
+
       vp.expected_arrival_at AS visit_date,
-      vp.expected_arrival_at::time AS arrival_time,
-      vp.expires_at::time AS expiry_time,
+      vp.expected_arrival_at AS arrival_time,
+
+      vp.expires_at AS expires_at,
+      vp.expires_at AS expiry_time,
+
       vp.status,
       vp.created_at,
       vp.cancelled_at,
@@ -26,7 +38,14 @@ export const getAllVisitorPassesFromDB = async () => {
       a.block,
       a.floor,
 
-      vl.checked_in_at
+      vl.checked_in_at,
+
+      CASE
+        WHEN vp.status = 'pending'
+             AND vp.expires_at < NOW()
+          THEN 'expired'
+        ELSE vp.status::text
+      END AS effective_status
 
     FROM visitor_passes vp
 
@@ -49,10 +68,71 @@ export const getAllVisitorPassesFromDB = async () => {
     ) vl
       ON vl.visitor_pass_id = vp.id
 
+    WHERE
+      (
+        CAST(${status} AS TEXT) = 'all'
+        OR (
+          CASE
+            WHEN vp.status = 'pending'
+                 AND vp.expires_at < NOW()
+              THEN 'expired'
+            ELSE vp.status::text
+          END
+        ) = CAST(${status} AS TEXT)
+      )
+
+      AND (
+        CAST(${normalizedSearch} AS TEXT) = ''
+        OR v.full_name ILIKE '%' || ${normalizedSearch} || '%'
+        OR a.unit_number ILIKE '%' || ${normalizedSearch} || '%'
+      )
+
     ORDER BY vp.created_at DESC
+
+    LIMIT ${limit}
+    OFFSET ${offset}
   `;
 
-  return result;
+  const [{ total }] = await prisma.$queryRaw`
+    SELECT COUNT(*)::int AS total
+
+    FROM visitor_passes vp
+
+    JOIN visitors v
+      ON vp.visitor_id = v.id
+
+    JOIN apartments a
+      ON vp.apartment_id = a.id
+
+    WHERE
+      (
+        CAST(${status} AS TEXT) = 'all'
+        OR (
+          CASE
+            WHEN vp.status = 'pending'
+                 AND vp.expires_at < NOW()
+              THEN 'expired'
+            ELSE vp.status::text
+          END
+        ) = CAST(${status} AS TEXT)
+      )
+
+      AND (
+        CAST(${normalizedSearch} AS TEXT) = ''
+        OR v.full_name ILIKE '%' || ${normalizedSearch} || '%'
+        OR a.unit_number ILIKE '%' || ${normalizedSearch} || '%'
+      )
+  `;
+
+  return {
+    passes,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
 };
 
 export const getDashboardStatsFromDB = async () => {
@@ -176,6 +256,22 @@ export const createUserInDB = async ({
       phone,
       status,
       created_at;
+  `;
+
+  return result[0] ?? null;
+};
+
+export const updateVisitorPassInDB = async (id, status) => {
+  const result = await prisma.$queryRaw`
+    UPDATE visitor_passes
+    SET
+      status = ${status},
+      cancelled_at = CASE
+        WHEN ${status} = 'cancelled' THEN NOW()
+        ELSE cancelled_at
+      END
+    WHERE id = ${id}
+    RETURNING *;
   `;
 
   return result[0] ?? null;

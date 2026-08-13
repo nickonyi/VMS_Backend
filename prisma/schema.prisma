@@ -124,6 +124,7 @@ enum visit_purpose {
 }
 
 enum visitor_pass_status {
+  all
   pending
   checked_in
   checked_out

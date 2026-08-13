@@ -3,19 +3,32 @@ import {
   getAllVisitorPassesService,
   getDashboardStatsService,
   updateUserService,
+  updateVisitorPassService,
 } from "../services/adminService.js";
 import { getAllUsers } from "../services/guardService.js";
 
 export const getAllVisitorPasses = async (req, res, next) => {
   try {
-    const visits = await getAllVisitorPassesService();
+    const page = Math.max(Number(req.query.page) || 1, 1);
+
+    const limit = Math.min(Math.max(Number(req.query.limit) || 10, 1), 100);
+
+    const status = req.query.status || "all";
+    const search = req.query.search?.trim() || "";
+
+    const result = await getAllVisitorPassesService({
+      page,
+      limit,
+      status,
+      search,
+    });
 
     return res.status(200).json({
       success: true,
-      visits,
+      ...result,
     });
   } catch (err) {
-    return next(err);
+    next(err);
   }
 };
 
@@ -86,6 +99,22 @@ export const createUser = async (req, res, next) => {
     return res.status(201).json({
       success: true,
       user,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const updateVisitorPass = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const pass = await updateVisitorPassService(id, status);
+
+    return res.status(200).json({
+      success: true,
+      pass,
     });
   } catch (err) {
     next(err);
