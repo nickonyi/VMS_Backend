@@ -22,10 +22,9 @@ app.use(
   }),
 );
 
+app.use(express.json());
 app.use(sessionMiddleware);
 app.use(passport.session());
-
-app.use(express.json());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/resident", ensureAuth, requireRole("resident"), residentRoutes);
