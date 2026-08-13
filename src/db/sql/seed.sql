@@ -15,7 +15,7 @@ VALUES
 (
 '92cd3f4f-75a9-4291-9f8d-18bffdd87597',
 'John Guard',
-'guard1@demo.com',
+'guard@demo.com',
 '0711000002',
 '$2b$10$wVxHiljlexNiSn7jbHPhU.9N0F9QUYV5Wv6cCB783CetZdioQqCgC',
 'guard'
