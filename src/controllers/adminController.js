@@ -1,4 +1,5 @@
 import {
+  createUserService,
   getAllVisitorPassesService,
   getDashboardStatsService,
   updateUserService,
@@ -66,5 +67,27 @@ export const updateUser = async (req, res, next) => {
     });
   } catch (err) {
     return next(err);
+  }
+};
+
+export const createUser = async (req, res, next) => {
+  try {
+    const { email, password, fullName, role, unit, phone } = req.body;
+
+    const user = await createUserService({
+      email,
+      password,
+      fullName,
+      role,
+      unit,
+      phone,
+    });
+
+    return res.status(201).json({
+      success: true,
+      user,
+    });
+  } catch (err) {
+    next(err);
   }
 };

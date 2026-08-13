@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  createUser,
   getAllVisitorPasses,
   getDashboardStats,
   getUsers,
@@ -11,6 +12,9 @@ const router = Router();
 router.get("/visitor-passes", getAllVisitorPasses);
 router.get("/dashboard/stats", getDashboardStats);
 router.get("/users", getUsers);
+
+router.post("/users", createUser);
+
 router.patch("/:id", updateUser);
 
 export default router;

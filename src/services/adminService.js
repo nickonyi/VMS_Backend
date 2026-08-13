@@ -1,4 +1,5 @@
 import {
+  createUserInDB,
   getAllVisitorPassesFromDB,
   getDashboardStatsFromDB,
   updateUserInDB,
@@ -27,5 +28,22 @@ export const updateUserService = async ({
     unit,
     phone,
     active,
+  });
+};
+
+export const createUserService = async ({
+  email,
+  password,
+  fullName,
+  role,
+  unit,
+  phone,
+}) => {
+  return createUserInDB({
+    email,
+    password,
+    fullName,
+    role,
+    phone,
   });
 };

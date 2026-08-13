@@ -1,4 +1,5 @@
 import { prisma } from "../lib/prisma.js";
+import { hashPassword } from "../utils/hash.js";
 
 export const getAllVisitorPassesFromDB = async () => {
   const result = await prisma.$queryRaw`
@@ -136,6 +137,45 @@ export const updateUserInDB = async ({
       updated_at = NOW()
     WHERE id = ${id}
     RETURNING *;
+  `;
+
+  return result[0] ?? null;
+};
+
+export const createUserInDB = async ({
+  email,
+  password,
+  fullName,
+  role,
+  phone,
+}) => {
+  const passwordHash = await hashPassword(password);
+
+  const result = await prisma.$queryRaw`
+    INSERT INTO users (
+      email,
+      password_hash,
+      full_name,
+      role,
+      phone,
+      status
+    )
+    VALUES (
+      ${email},
+      ${passwordHash},
+      ${fullName},
+      ${role},
+      ${phone},
+      'active'
+    )
+    RETURNING
+      id,
+      email,
+      full_name,
+      role,
+      phone,
+      status,
+      created_at;
   `;
 
   return result[0] ?? null;

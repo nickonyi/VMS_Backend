@@ -100,6 +100,7 @@ model sessions {
 enum user_role {
   resident
   guard
+  contractor
   admin
 }
 
