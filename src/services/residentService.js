@@ -40,18 +40,18 @@ export const createVisitorPassService = async (
     expiresAt: data.expiresAt,
   });
 
-  try {
-    await sendVisitorCodeEmail({
-      email: visitor.email,
-      guestName: visitor.full_name,
-      manualCode,
-      visitDate: data.expectedArrivalAt,
-      arrivalTime: data.expectedArrivalAt,
-      expiryTime: data.expiresAt,
-    });
-  } catch (error) {
-    console.error("Failed to send visitor pass email:", error);
-  }
+  // try {
+  //   await sendVisitorCodeEmail({
+  //     email: visitor.email,
+  //     guestName: visitor.full_name,
+  //     manualCode,
+  //     visitDate: data.expectedArrivalAt,
+  //     arrivalTime: data.expectedArrivalAt,
+  //     expiryTime: data.expiresAt,
+  //   });
+  // } catch (error) {
+  //   console.error("Failed to send visitor pass email:", error);
+  // }
 
   return pass;
 };
