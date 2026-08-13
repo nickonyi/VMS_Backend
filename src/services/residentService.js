@@ -22,8 +22,6 @@ export const createVisitorPassService = async (
     throw new Error("Resident has no apartment assigned.");
   }
 
-  console.log(data);
-
   const visitor = await createVisitorInDB({
     fullName: data.guestName,
     phone: data.guestPhone,
@@ -42,14 +40,18 @@ export const createVisitorPassService = async (
     expiresAt: data.expiresAt,
   });
 
-  await sendVisitorCodeEmail({
-    email: visitor.email,
-    guestName: visitor.full_name,
-    manualCode,
-    visitDate: data.expectedArrivalAt,
-    arrivalTime: data.expectedArrivalAt,
-    expiryTime: data.expiresAt,
-  });
+  try {
+    await sendVisitorCodeEmail({
+      email: visitor.email,
+      guestName: visitor.full_name,
+      manualCode,
+      visitDate: data.expectedArrivalAt,
+      arrivalTime: data.expectedArrivalAt,
+      expiryTime: data.expiresAt,
+    });
+  } catch (error) {
+    console.error("Failed to send visitor pass email:", error);
+  }
 
   return pass;
 };
