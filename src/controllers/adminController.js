@@ -1,6 +1,7 @@
 import {
   getAllVisitorPassesService,
   getDashboardStatsService,
+  updateUserService,
 } from "../services/adminService.js";
 import { getAllUsers } from "../services/guardService.js";
 
@@ -41,5 +42,29 @@ export const getUsers = async (req, res, next) => {
     });
   } catch (err) {
     next(err);
+  }
+};
+
+export const updateUser = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+
+    const { fullName, role, unit, phone, active } = req.body;
+
+    const updates = await updateUserService({
+      id,
+      fullName,
+      role,
+      unit,
+      phone,
+      active,
+    });
+
+    return res.status(200).json({
+      success: true,
+      updates,
+    });
+  } catch (err) {
+    return next(err);
   }
 };

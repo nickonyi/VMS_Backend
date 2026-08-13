@@ -117,3 +117,26 @@ export const getAllUsersFromDB = async () => {
 
   return result;
 };
+
+export const updateUserInDB = async ({
+  id,
+  fullName,
+  role,
+  unit,
+  phone,
+  active,
+}) => {
+  const result = await prisma.$queryRaw`
+    UPDATE users
+    SET
+      full_name = ${fullName},
+      role = ${role},
+      phone = ${phone},
+      status = ${active ? "active" : "disabled"},
+      updated_at = NOW()
+    WHERE id = ${id}
+    RETURNING *;
+  `;
+
+  return result[0] ?? null;
+};
