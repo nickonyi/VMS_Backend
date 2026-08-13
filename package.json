@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "node --watch src/server.js",
+    "start": "node src/server.js",
     "reset-db": "psql -U phatommobb -d vms_db -f src/db/sql/init.sql",
     "seed-db": "psql -U phatommobb -d vms_db -f src/db/sql/seed.sql",
     "fresh-db": "npm run reset-db && npm run seed-db"
