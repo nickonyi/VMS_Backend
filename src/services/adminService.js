@@ -5,6 +5,7 @@ import {
   updateUserInDB,
   updateVisitorPassInDB,
 } from "../repositories/adminRepository.js";
+import { hashPassword } from "../utils/hash.js";
 
 export const getAllVisitorPassesService = async ({
   page,
@@ -50,15 +51,40 @@ export const createUserService = async ({
   unit,
   phone,
 }) => {
+  const passwordHash = await hashPassword(password);
+
+  let block = null;
+  let floor = null;
+  let normalizedUnit = null;
+
+  if (role === "resident") {
+    if (!unit) {
+      throw new Error("Unit is required for residents.");
+    }
+
+    normalizedUnit = unit.trim().toUpperCase();
+
+    const match = normalizedUnit.match(/^([A-Z])-(\d{3})$/);
+
+    if (!match) {
+      throw new Error("Invalid unit format. Expected format like B-304.");
+    }
+
+    block = match[1];
+    floor = Number(match[2].charAt(0));
+  }
+
   return createUserInDB({
     email,
-    password,
+    passwordHash,
     fullName,
     role,
     phone,
+    unit: normalizedUnit,
+    block,
+    floor,
   });
 };
-
 export const updateVisitorPassService = async (id, status) => {
   if (status !== "cancelled") {
     throw new Error("Invalid visitor pass status.");

@@ -1,5 +1,4 @@
 import { prisma } from "../lib/prisma.js";
-import { hashPassword } from "../utils/hash.js";
 
 export const getAllVisitorPassesFromDB = async ({
   page = 1,
@@ -224,43 +223,78 @@ export const updateUserInDB = async ({
 
 export const createUserInDB = async ({
   email,
-  password,
+  passwordHash,
   fullName,
   role,
   phone,
+  unit,
+  block,
+  floor,
 }) => {
-  const passwordHash = await hashPassword(password);
+  return prisma.$transaction(async (tx) => {
+    const userResult = await tx.$queryRaw`
+      INSERT INTO users (
+        email,
+        password_hash,
+        full_name,
+        role,
+        phone,
+        status
+      )
+      VALUES (
+        ${email},
+        ${passwordHash},
+        ${fullName},
+        ${role},
+        ${phone},
+        'active'
+      )
+      RETURNING
+        id,
+        email,
+        full_name,
+        role,
+        phone,
+        status,
+        created_at;
+    `;
 
-  const result = await prisma.$queryRaw`
-    INSERT INTO users (
-      email,
-      password_hash,
-      full_name,
-      role,
-      phone,
-      status
-    )
-    VALUES (
-      ${email},
-      ${passwordHash},
-      ${fullName},
-      ${role},
-      ${phone},
-      'active'
-    )
-    RETURNING
-      id,
-      email,
-      full_name,
-      role,
-      phone,
-      status,
-      created_at;
-  `;
+    const user = userResult[0];
 
-  return result[0] ?? null;
+    if (!user) {
+      throw new Error("Failed to create user.");
+    }
+
+    if (role === "resident") {
+      const apartmentResult = await tx.$queryRaw`
+        INSERT INTO apartments (
+          unit_number,
+          block,
+          floor,
+          resident_id
+        )
+        VALUES (
+          ${unit},
+          ${block},
+          ${floor},
+          ${user.id}
+        )
+        RETURNING
+          id,
+          unit_number,
+          block,
+          floor,
+          resident_id;
+      `;
+
+      if (!apartmentResult[0]) {
+        throw new Error("Failed to create apartment.");
+      }
+    }
+
+    return user;
+  });
 };
-
 export const updateVisitorPassInDB = async (id, status) => {
   const result = await prisma.$queryRaw`
     UPDATE visitor_passes
