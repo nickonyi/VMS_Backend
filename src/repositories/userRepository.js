@@ -33,9 +33,14 @@ export const createUsersInDB = async ({
 
 export const getUserByEmailFromDb = async (email) => {
   const users = await prisma.$queryRaw`
-    SELECT *
+    SELECT 
+    users.*,
+    apartments.id AS apartment_id,
+    apartments.unit_number AS unit
     FROM users
-    WHERE email = ${email}
+    LEFT JOIN apartments
+     ON apartments.resident_id = users.id
+     WHERE email = ${email}
     LIMIT 1
   `;
 
@@ -44,9 +49,14 @@ export const getUserByEmailFromDb = async (email) => {
 
 export const getUserByIdFromDb = async (id) => {
   const users = await prisma.$queryRaw`
-    SELECT *
+    SELECT 
+    users.*,
+    apartments.id AS apartment_id,
+    apartments.unit_number AS unit
     FROM users
-    WHERE id = ${id}
+    LEFT JOIN apartments
+     ON apartments.resident_id = users.id
+    WHERE users.id = ${id}
     LIMIT 1
   `;
 
