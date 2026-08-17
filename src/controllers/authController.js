@@ -57,7 +57,7 @@ export const postSignin = (req, res, next) => {
     if (err) return next(err);
 
     if (!user) {
-      console.log("3. User not authenticated");
+      console.log("User not authenticated");
       return res.status(401).json({
         success: false,
         message: info?.message || "Email or password is incorrect",
