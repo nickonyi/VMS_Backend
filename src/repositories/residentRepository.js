@@ -75,41 +75,66 @@ export const createVisitorPassInDB = async ({
 
 export const getPassByIdFromDB = async (id) => {
   const result = await prisma.$queryRaw`
-    SELECT
-      vp.id,
-      v.full_name AS guest_name,
-      v.phone AS guest_phone,
-      v.vehicle_reg,
-      vp.purpose,
-      vp.manual_code,
-      vp.num_of_guests,
+  SELECT
+    vp.id,
+    v.full_name AS guest_name,
+    v.phone AS guest_phone,
+    v.vehicle_reg,
+    vp.purpose,
+    vp.manual_code,
+    vp.num_of_guests,
 
-      vp.expected_arrival_at AT TIME ZONE 'UTC' AS visit_date,
-      vp.expected_arrival_at AT TIME ZONE 'UTC' AS arrival_time,
+    vp.expected_arrival_at AT TIME ZONE 'UTC' AS visit_date,
+    vp.expected_arrival_at AT TIME ZONE 'UTC' AS arrival_time,
 
-      vp.expires_at AT TIME ZONE 'UTC' AS expiry_time,
-      vp.expires_at AT TIME ZONE 'UTC' AS expires_at,
+    vp.expires_at AT TIME ZONE 'UTC' AS expiry_time,
+    vp.expires_at AT TIME ZONE 'UTC' AS expires_at,
 
-      vp.qr_token,
-      vp.status,
+    vp.qr_token,
+    vp.status,
 
-      vp.created_at AT TIME ZONE 'UTC' AS created_at,
+    vp.created_at AT TIME ZONE 'UTC' AS created_at,
 
-      a.unit_number,
-      a.block,
-      u.id AS resident_id,
-      u.full_name AS resident_name
+    -- Actual check-in time
+    (
+      SELECT vl.timestamp
+      FROM visit_logs vl
+      WHERE vl.visitor_pass_id = vp.id
+        AND vl.action = 'check_in'
+      ORDER BY vl.timestamp DESC
+      LIMIT 1
+    ) AT TIME ZONE 'UTC' AS checked_in_at,
 
-    FROM visitor_passes vp
-    JOIN visitors v
-      ON vp.visitor_id = v.id
-    JOIN apartments a
-      ON vp.apartment_id = a.id
-    JOIN users u
-      ON vp.resident_id = u.id
-    WHERE vp.id = ${id}
-    LIMIT 1;
-  `;
+    -- Actual check-out time
+    (
+      SELECT vl.timestamp
+      FROM visit_logs vl
+      WHERE vl.visitor_pass_id = vp.id
+        AND vl.action = 'check_out'
+      ORDER BY vl.timestamp DESC
+      LIMIT 1
+    ) AT TIME ZONE 'UTC' AS checked_out_at,
+
+    a.unit_number,
+    a.block,
+    u.id AS resident_id,
+    u.full_name AS resident_name
+
+  FROM visitor_passes vp
+
+  JOIN visitors v
+    ON vp.visitor_id = v.id
+
+  JOIN apartments a
+    ON vp.apartment_id = a.id
+
+  JOIN users u
+    ON vp.resident_id = u.id
+
+  WHERE vp.id = ${id}
+
+  LIMIT 1;
+`;
 
   return result[0] ?? null;
 };
@@ -206,6 +231,7 @@ export const getPassByTokenFromDB = async (token) => {
     LIMIT 1;
   `;
 
+  console.log("DB PASS RESULT:", result[0]);
   return result[0] ?? null;
 };
 
