@@ -75,7 +75,7 @@ export const createVisitorPassInDB = async ({
 
 export const getPassByIdFromDB = async (id) => {
   const result = await prisma.$queryRaw`
-    SELECT
+  SELECT
     vp.id,
     v.full_name AS guest_name,
     v.phone AS guest_phone,
@@ -83,27 +83,58 @@ export const getPassByIdFromDB = async (id) => {
     vp.purpose,
     vp.manual_code,
     vp.num_of_guests,
-    vp.expected_arrival_at AS visit_date,
-    vp.expected_arrival_at::time AS arrival_time,
-    vp.expires_at::time AS expiry_time,
-    vp.expires_at,
+
+    vp.expected_arrival_at AT TIME ZONE 'UTC' AS visit_date,
+    vp.expected_arrival_at AT TIME ZONE 'UTC' AS arrival_time,
+
+    vp.expires_at AT TIME ZONE 'UTC' AS expiry_time,
+    vp.expires_at AT TIME ZONE 'UTC' AS expires_at,
+
     vp.qr_token,
     vp.status,
-    vp.created_at,
+
+    vp.created_at AT TIME ZONE 'UTC' AS created_at,
+
+    -- Actual check-in time
+    (
+      SELECT vl.timestamp
+      FROM visit_logs vl
+      WHERE vl.visitor_pass_id = vp.id
+        AND vl.action = 'check_in'
+      ORDER BY vl.timestamp DESC
+      LIMIT 1
+    ) AT TIME ZONE 'UTC' AS checked_in_at,
+
+    -- Actual check-out time
+    (
+      SELECT vl.timestamp
+      FROM visit_logs vl
+      WHERE vl.visitor_pass_id = vp.id
+        AND vl.action = 'check_out'
+      ORDER BY vl.timestamp DESC
+      LIMIT 1
+    ) AT TIME ZONE 'UTC' AS checked_out_at,
+
     a.unit_number,
     a.block,
     u.id AS resident_id,
     u.full_name AS resident_name
-FROM visitor_passes vp
-JOIN visitors v
+
+  FROM visitor_passes vp
+
+  JOIN visitors v
     ON vp.visitor_id = v.id
-JOIN apartments a
+
+  JOIN apartments a
     ON vp.apartment_id = a.id
-JOIN users u
+
+  JOIN users u
     ON vp.resident_id = u.id
-WHERE vp.id = ${id}
-LIMIT 1;
-  `;
+
+  WHERE vp.id = ${id}
+
+  LIMIT 1;
+`;
 
   return result[0] ?? null;
 };
@@ -120,9 +151,9 @@ export const getResidentPassesFromDB = async (residentId) => {
       vp.purpose,
       vp.manual_code,
       vp.num_of_guests,
-      vp.expected_arrival_at AS visit_date,
-      vp.expected_arrival_at::time AS arrival_time,
-      vp.expires_at::time AS expiry_time,
+      vp.expected_arrival_at AT TIME ZONE 'UTC' AS visit_date,
+      vp.expected_arrival_at AT TIME ZONE 'UTC' AS arrival_time,
+      vp.expires_at AS expiry_time,
       vp.expires_at,
       vp.qr_token,
       vp.status,
@@ -148,9 +179,9 @@ export const getPassByTokenFromDB = async (token) => {
       vp.manual_code,
       vp.num_of_guests,
 
-      vp.expected_arrival_at AS visit_date,
-      vp.expected_arrival_at::time AS arrival_time,
-      vp.expires_at::time AS expiry_time,
+      vp.expected_arrival_at AT TIME ZONE 'UTC' AS visit_date,
+      vp.expected_arrival_at AT TIME ZONE 'UTC' AS arrival_time,
+      vp.expires_at AS expiry_time,
 
       vp.qr_token,
       vp.status,
@@ -200,6 +231,7 @@ export const getPassByTokenFromDB = async (token) => {
     LIMIT 1;
   `;
 
+  console.log("DB PASS RESULT:", result[0]);
   return result[0] ?? null;
 };
 

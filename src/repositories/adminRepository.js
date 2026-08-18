@@ -15,11 +15,11 @@ export const getAllVisitorPassesFromDB = async ({
       vp.num_of_guests,
       vp.purpose,
 
-      vp.expected_arrival_at AS visit_date,
-      vp.expected_arrival_at AS arrival_time,
+      vp.expected_arrival_at AT TIME ZONE 'UTC' AS visit_date,
+      vp.expected_arrival_at AT TIME ZONE 'UTC' AS arrival_time,
 
-      vp.expires_at AS expires_at,
-      vp.expires_at AS expiry_time,
+      vp.expires_at AT TIME ZONE 'UTC' AS expires_at,
+      vp.expires_at AT TIME ZONE 'UTC' AS expiry_time,
 
       vp.status,
       vp.created_at,
