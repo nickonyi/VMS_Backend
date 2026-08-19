@@ -35,7 +35,6 @@ export const getAllVisitorPasses = async (req, res, next) => {
 export const getDashboardStats = async (req, res, next) => {
   try {
     const stats = await getDashboardStatsService();
-    console.log(stats);
 
     return res.status(200).json({
       success: true,
@@ -63,13 +62,14 @@ export const updateUser = async (req, res, next) => {
   try {
     const id = req.params.id;
 
-    const { fullName, role, unit, phone, active } = req.body;
+    const { fullName, role, unit, email, phone, active } = req.body;
 
     const updates = await updateUserService({
       id,
       fullName,
       role,
       unit,
+      email,
       phone,
       active,
     });
