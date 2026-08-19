@@ -203,6 +203,7 @@ export const updateUserInDB = async ({
   fullName,
   role,
   unit,
+  email,
   phone,
   active,
 }) => {
@@ -212,6 +213,7 @@ export const updateUserInDB = async ({
       full_name = ${fullName},
       role = ${role},
       phone = ${phone},
+      email = ${email},
       status = ${active ? "active" : "disabled"},
       updated_at = NOW()
     WHERE id = ${id}

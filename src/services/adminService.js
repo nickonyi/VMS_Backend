@@ -30,6 +30,7 @@ export const updateUserService = async ({
   fullName,
   role,
   unit,
+  email,
   phone,
   active,
 }) => {
@@ -38,6 +39,7 @@ export const updateUserService = async ({
     fullName,
     role,
     unit,
+    email,
     phone,
     active,
   });
