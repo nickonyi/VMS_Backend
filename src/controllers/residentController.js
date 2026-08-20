@@ -26,7 +26,10 @@ export const createVisitorPass = async (req, res, next) => {
     });
   }
 
-  const manualCode = generateManualCode();
+  const { guestId } = matchedData(req);
+
+  const manualCode = generateManualCode(guestId);
+
   try {
     const pass = await createVisitorPassService(
       req.user.id,

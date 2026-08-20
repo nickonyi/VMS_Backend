@@ -25,7 +25,7 @@ VALUES
 'Sarah Guard',
 'guard2@demo.com',
 '0711000003',
-'$2b$10.REPLACE_WITH_BCRYPT_HASH',
+'$2b$10$lvrKzZPRTTeMpE1GfGZaGe1hfb/XQ/5neQXitarzFoR7fYsg0aABa',
 'guard'
 ),
 (
@@ -41,7 +41,7 @@ VALUES
 'Jane Mwangi',
 'jane@demo.com',
 '0711000005',
-'$2b$10.REPLACE_WITH_BRYPT_HASH',
+'$2b$10$9KcOfHAGqc5WZcEqep0rYOisHCguMwblbFzSc9jMeGWR7yiEBqEzO',
 'resident'
 ),
 (
@@ -49,7 +49,7 @@ VALUES
 'Peter Otieno',
 'peter@demo.com',
 '0711000006',
-'$2b$10.REPLACE_WITH_BCRYPT_HASH',
+'$2b$10$HV2Lb7LPyjl8ErSknZLCZOZiinoDPj7q0F9nXwlzUqp7crf04l9MW',
 'resident'
 );
 
@@ -91,26 +91,34 @@ INSERT INTO visitors (
     id,
     full_name,
     phone,
-    vehicle_reg
+    vehicle_reg,
+    email,
+    id_number
 )
 VALUES
 (
     'aaaaaaaa-1111-1111-1111-111111111111',
     'David Mwangi',
     '+254711111111',
-    'KDA123A'
+    'KDA123A',
+    'davido@demo.com',
+    'ID123456'
 ),
 (
     'bbbbbbbb-2222-2222-2222-222222222222',
     'Sarah Achieng',
     '+254722222222',
-    NULL
+    NULL,
+    'sarah@demo.com',
+    'ID789012'
 ),
 (
     'cccccccc-3333-3333-3333-333333333333',
     'Kevin Otieno',
     '+254733333333',
-    'KCB456B'
+    'KCB456B',
+    'voke@demo.com',
+    'ID345678'
 );
 
 
@@ -124,7 +132,7 @@ INSERT INTO visitor_passes (
     resident_id,
     apartment_id,
     purpose,
-    notes,
+    manual_code,
     num_of_guests,
     expected_arrival_at,
     expires_at,
@@ -135,10 +143,10 @@ VALUES
 (
     'aaaa1111-1111-1111-1111-111111111111',
     'aaaaaaaa-1111-1111-1111-111111111111',
-    '11111111-1111-1111-1111-111111111111',
+    '0714a395-3abf-4f81-9d85-a16963140c4e',
     'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
     'family',
-    'Family visit',
+    '123456',
     2,
     NOW() + INTERVAL '1 hour',
     NOW() + INTERVAL '5 hours',
@@ -148,10 +156,10 @@ VALUES
 (
     'bbbb2222-2222-2222-2222-222222222222',
     'bbbbbbbb-2222-2222-2222-222222222222',
-    '22222222-2222-2222-2222-222222222222',
+    '0714a395-3abf-4f81-9d85-a16963140c4e',
     'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
     'friend',
-    'Weekend visit',
+    '345678',
     1,
     NOW() - INTERVAL '2 hours',
     NOW() + INTERVAL '2 hours',
@@ -161,10 +169,10 @@ VALUES
 (
     'cccc3333-3333-3333-3333-333333333333',
     'cccccccc-3333-3333-3333-333333333333',
-    '11111111-1111-1111-1111-111111111111',
+    '0714a395-3abf-4f81-9d85-a16963140c4e',
     'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
     'delivery',
-    'Package delivery',
+    '525638',
     1,
     NOW() - INTERVAL '1 day',
     NOW() - INTERVAL '20 hours',
@@ -189,7 +197,7 @@ VALUES
 (
     'aaaa4444-4444-4444-4444-444444444444',
     'bbbb2222-2222-2222-2222-222222222222',
-    '33333333-3333-3333-3333-333333333333',
+    '92cd3f4f-75a9-4291-9f8d-18bffdd87597',
     'check_in',
     NOW() - INTERVAL '1 hour'
 );
@@ -207,14 +215,14 @@ VALUES
 (
     'bbbb5555-5555-5555-5555-555555555555',
     'cccc3333-3333-3333-3333-333333333333',
-    '33333333-3333-3333-3333-333333333333',
+    '92cd3f4f-75a9-4291-9f8d-18bffdd87597',
     'check_in',
     NOW() - INTERVAL '23 hours'
 ),
 (
     'cccc6666-6666-6666-6666-666666666666',
     'cccc3333-3333-3333-3333-333333333333',
-    '33333333-3333-3333-3333-333333333333',
+    '92cd3f4f-75a9-4291-9f8d-18bffdd87597',
     'check_out',
     NOW() - INTERVAL '21 hours'
 );
