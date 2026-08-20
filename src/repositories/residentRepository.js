@@ -16,19 +16,22 @@ export const createVisitorInDB = async ({
   phone,
   vehicleReg,
   email,
+  idNumber,
 }) => {
   const visitor = await prisma.$queryRaw`
     INSERT INTO visitors (
       full_name,
       phone,
       vehicle_reg,
-email
+      email,
+      id_number
     )
     VALUES (
       ${fullName},
       ${phone},
       ${vehicleReg},
-       ${email}
+       ${email},
+       ${idNumber}
     )
     RETURNING *;
   `;

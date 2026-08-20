@@ -19,6 +19,8 @@ export const validateCreateVisitorPass = [
     .withMessage("Please provide a valid email address.")
     .isLength({ max: 255 })
     .withMessage("Email cannot exceed 255 characters."),
+
+  body("guestId").notEmpty().withMessage("ID number is required."),
   body("numberOfGuests")
     .isInt({ min: 1 })
     .withMessage("Number of guests must be at least 1."),

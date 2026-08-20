@@ -117,6 +117,8 @@ CREATE TABLE visitors (
     full_name VARCHAR(100) NOT NULL,
     phone VARCHAR(20),
     vehicle_reg VARCHAR(20),
+    email VARCHAR(255),
+    id_number VARCHAR(50),
 
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -135,7 +137,7 @@ CREATE TABLE visitor_passes (
     apartment_id UUID NOT NULL,
 
     purpose visit_purpose NOT NULL,
-    notes TEXT,
+     manual_code VARCHAR(12),
 
     num_of_guests INTEGER NOT NULL DEFAULT 1,
 
