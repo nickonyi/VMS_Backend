@@ -55,7 +55,7 @@ CREATE TYPE visit_purpose AS ENUM (
     'friend',
     'delivery',
     'maintenance',
-    'business',
+    'contractor',
     'other'
 );
 

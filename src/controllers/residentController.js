@@ -112,7 +112,6 @@ export const getPassByToken = async (req, res, next) => {
     }
 
     const pass = await getPassByTokenService(t);
-    console.log(pass);
 
     if (!pass) {
       return res.status(404).json({

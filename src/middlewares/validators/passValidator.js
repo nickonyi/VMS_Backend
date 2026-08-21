@@ -34,7 +34,14 @@ export const validateCreateVisitorPass = [
   body("purpose")
     .notEmpty()
     .withMessage("Purpose is required.")
-    .isIn(["family", "friend", "delivery", "maintenance", "business", "other"])
+    .isIn([
+      "family",
+      "friend",
+      "delivery",
+      "maintenance",
+      "contractor",
+      "other",
+    ])
     .withMessage("Invalid purpose."),
 
   body("expectedArrivalAt")
