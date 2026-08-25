@@ -5,6 +5,8 @@ import {
   updateUserInDB,
   updateVisitorPassInDB,
 } from "../repositories/adminRepository.js";
+
+import AppError from "../utils/appError.js";
 import { hashPassword } from "../utils/hash.js";
 
 export const getAllVisitorPassesService = async ({
@@ -61,7 +63,7 @@ export const createUserService = async ({
 
   if (role === "resident") {
     if (!unit) {
-      throw new Error("Unit is required for residents.");
+      throw new AppError("Unit is required for residents.", 400);
     }
 
     normalizedUnit = unit.trim().toUpperCase();
@@ -69,7 +71,10 @@ export const createUserService = async ({
     const match = normalizedUnit.match(/^([A-Z])-(\d{3})$/);
 
     if (!match) {
-      throw new Error("Invalid unit format. Expected format like B-304.");
+      throw new AppError(
+        "Invalid unit format. Expected format like B-304.",
+        400,
+      );
     }
 
     block = match[1];
