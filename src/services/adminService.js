@@ -5,7 +5,6 @@ import {
   updateUserInDB,
   updateVisitorPassInDB,
 } from "../repositories/adminRepository.js";
-
 import AppError from "../utils/appError.js";
 import { hashPassword } from "../utils/hash.js";
 
@@ -94,7 +93,7 @@ export const createUserService = async ({
 };
 export const updateVisitorPassService = async (id, status) => {
   if (status !== "cancelled") {
-    throw new Error("Invalid visitor pass status.");
+    throw new AppError("Invalid visitor pass status.", 400);
   }
 
   const pass = await updateVisitorPassInDB(id, status);
