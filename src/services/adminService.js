@@ -66,18 +66,6 @@ export const createUserService = async ({
     }
 
     normalizedUnit = unit.trim().toUpperCase();
-
-    const match = normalizedUnit.match(/^([A-Z])-(\d{3})$/);
-
-    if (!match) {
-      throw new AppError(
-        "Invalid unit format. Expected format like B-304.",
-        400,
-      );
-    }
-
-    block = match[1];
-    floor = Number(match[2].charAt(0));
   }
 
   return createUserInDB({
