@@ -6,6 +6,7 @@ import {
 } from "../services/ascribe.service.js";
 import { authenticateStaff } from "../services/authService.js";
 import { findStaffByPhone } from "../repositories/userRepository.js";
+import { getAscribeProperties } from "../services/ascribe.service.js";
 
 export const postSignup = async (req, res, next) => {
   try {
@@ -44,13 +45,30 @@ export const postSignup = async (req, res, next) => {
 
     const resident = ascribeResponse.data.data;
 
+    // Login to Ascribe to obtain the resident token
+    const loginResponse = await loginResident({
+      resident_phone: phone,
+      resident_password: password,
+    });
+
+    if (!loginResponse.ok) {
+      return res.status(401).json({
+        success: false,
+        message: "Account created, but automatic login failed.",
+      });
+    }
+
+    const ascribeData = loginResponse.data;
+    const token = ascribeData.token;
+
     req.session.regenerate((err) => {
       if (err) return next(err);
 
       req.session.auth = {
         userType: "resident",
         role: "resident",
-        residentId: resident.id,
+        ascribeResidentId: resident.id,
+        ascribeToken: token,
       };
 
       const user = {
