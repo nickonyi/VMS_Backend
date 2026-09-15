@@ -8,18 +8,13 @@ export const signUpValidator = [
     .isLength({ min: 2, max: 30 })
     .withMessage("Full name must be between 2 and 30 characters")
     .matches(/^[A-Za-z\s-]+$/)
-    .withMessage("Full name can only contain letters, spaces and hiphens"),
-  ,
-  body("email")
-    .trim()
-    .notEmpty()
-    .withMessage("Email is required!")
-    .isEmail()
-    .withMessage("Email must be valid")
-    .normalizeEmail(),
+    .withMessage("Full name can only contain letters, spaces and hyphens"),
+
+  body("phone").trim().notEmpty().withMessage("Phone number is required"),
+
   body("password")
-    .isLength({ min: 6 })
-    .withMessage("Password must be atleast 6 characters"),
+    .isLength({ min: 8 })
+    .withMessage("Password must be at least 8 characters"),
 ];
 
 export const loginValidator = [

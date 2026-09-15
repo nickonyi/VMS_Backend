@@ -1,6 +1,6 @@
 import { matchedData, validationResult } from "express-validator";
 import passport from "../config/passportConfig.js";
-import { registerUser } from "../services/authService.js";
+import { registerResident } from "../services/ascribe.service.js";
 
 export const postSignup = async (req, res, next) => {
   try {
@@ -21,30 +21,44 @@ export const postSignup = async (req, res, next) => {
       });
     }
 
-    const { fullName, email, password } = matchedData(req);
+    const { fullName, phone, password } = matchedData(req);
 
-    const { role, status, phone } = req.body;
-
-    const user = await registerUser({
-      fullName,
-      email,
-      phone,
-      password,
-      role,
-      status,
+    const ascribeResponse = await registerResident({
+      resident_name: fullName,
+      resident_phone: phone,
+      resident_password: password,
     });
+
+    if (!ascribeResponse.ok) {
+      return res.status(ascribeResponse.status).json({
+        success: false,
+        message: "Unable to create resident account",
+        error: ascribeResponse.data,
+      });
+    }
+
+    const resident = ascribeResponse.data.data;
 
     req.session.regenerate((err) => {
       if (err) return next(err);
 
-      req.login(user, (err) => {
-        if (err) return next(err);
+      req.session.auth = {
+        userType: "resident",
+        role: "resident",
+        residentId: resident.id,
+      };
 
-        return res.status(201).json({
-          success: true,
-          message: "Account created successfully.",
-          user,
-        });
+      const user = {
+        id: resident.id,
+        fullName: resident.resident_name,
+        phone: resident.resident_phone,
+        role: "resident",
+      };
+
+      return res.status(201).json({
+        success: true,
+        message: "Account created successfully.",
+        user,
       });
     });
   } catch (err) {
