@@ -62,3 +62,14 @@ export const getUserByIdFromDb = async (id) => {
 
   return users[0] ?? null;
 };
+
+export const findStaffByPhone = async (phone) => {
+  const result = await prisma.$queryRaw`
+    SELECT *
+    FROM users
+    WHERE phone = ${phone}
+    LIMIT 1
+  `;
+
+  return result[0] || null;
+};

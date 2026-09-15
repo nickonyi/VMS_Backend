@@ -1,6 +1,11 @@
 import { matchedData, validationResult } from "express-validator";
 import passport from "../config/passportConfig.js";
-import { registerResident } from "../services/ascribe.service.js";
+import {
+  loginResident,
+  registerResident,
+} from "../services/ascribe.service.js";
+import { authenticateStaff } from "../services/authService.js";
+import { findStaffByPhone } from "../repositories/userRepository.js";
 
 export const postSignup = async (req, res, next) => {
   try {
@@ -66,22 +71,32 @@ export const postSignup = async (req, res, next) => {
   }
 };
 
-export const postSignin = (req, res, next) => {
-  passport.authenticate("local", (err, user, info) => {
-    if (err) return next(err);
+export const postSignin = async (req, res, next) => {
+  try {
+    const { phone, password } = matchedData(req);
 
-    if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: info?.message || "Email or password is incorrect",
-      });
-    }
+    const existingUser = await findStaffByPhone(phone);
 
-    req.session.regenerate((err) => {
-      if (err) return next(err);
+    if (existingUser) {
+      const user = await authenticateStaff(phone, password);
 
-      req.login(user, (err) => {
-        if (err) return next(err);
+      if (!user) {
+        return res.status(401).json({
+          success: false,
+          message: "Phone number or password is incorrect.",
+        });
+      }
+
+      req.session.regenerate((err) => {
+        if (err) {
+          return next(err);
+        }
+
+        req.session.auth = {
+          userType: "staff",
+          role: user.role,
+          userId: user.id,
+        };
 
         return res.status(200).json({
           success: true,
@@ -89,15 +104,64 @@ export const postSignin = (req, res, next) => {
           user: {
             id: user.id,
             fullName: user.full_name,
-            email: user.email,
+            phone: user.phone,
             role: user.role,
-            status: user.status,
-            unit: user.unit,
           },
         });
       });
+
+      return;
+    }
+
+    const ascribeResponse = await loginResident({
+      resident_phone: phone,
+      resident_password: password,
     });
-  })(req, res, next);
+
+    if (!ascribeResponse.ok) {
+      return res.status(401).json({
+        success: false,
+        message: "Phone number or password is incorrect.",
+      });
+    }
+
+    const ascribeData = ascribeResponse.data;
+    console.log(ascribeData);
+
+    const token = ascribeData.token;
+    console.log(token);
+
+    const resident = ascribeData.tenant;
+    console.log(resident);
+
+    req.session.regenerate((err) => {
+      if (err) {
+        return next(err);
+      }
+
+      req.session.auth = {
+        userType: "resident",
+        role: "resident",
+        ascribeResidentId: resident.id,
+        ascribeToken: token,
+      };
+
+      return res.status(200).json({
+        success: true,
+        message: "Login successful.",
+        user: {
+          id: resident.id,
+          fullName: resident.resident_name,
+          phone: resident.resident_phone,
+          role: "resident",
+          status:
+            resident.resident_active_status === "Y" ? "active" : "inactive",
+        },
+      });
+    });
+  } catch (err) {
+    next(err);
+  }
 };
 
 export const getSignout = (req, res, next) => {

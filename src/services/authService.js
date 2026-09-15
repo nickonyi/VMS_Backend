@@ -2,8 +2,9 @@ import {
   createUsersInDB,
   getUserByEmailFromDb,
   getUserByIdFromDb,
+  findStaffByPhone,
 } from "../repositories/userRepository.js";
-import { hashPassword } from "../utils/hash.js";
+import { hashPassword, verifyPassword } from "../utils/hash.js";
 
 export const registerUser = async ({
   fullName,
@@ -51,4 +52,24 @@ export const validateUser = async (email, password, verifyFn) => {
   const isValid = await verifyFn(password, user.password_hash);
 
   return isValid ? user : null;
+};
+
+export const authenticateStaff = async (phone, password) => {
+  const user = await findStaffByPhone(phone);
+
+  if (!user) {
+    return null;
+  }
+
+  const passwordMatches = await verifyPassword(password, user.password_hash);
+
+  if (!passwordMatches) {
+    return null;
+  }
+
+  if (user.status !== "active") {
+    return null;
+  }
+
+  return user;
 };

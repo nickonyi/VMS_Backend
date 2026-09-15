@@ -18,6 +18,6 @@ export const signUpValidator = [
 ];
 
 export const loginValidator = [
-  body("email").trim().notEmpty().withMessage("Email is required"),
+  body("phone").trim().notEmpty().withMessage("Phone number is required"),
   body("password").notEmpty().withMessage("Password is required"),
 ];
