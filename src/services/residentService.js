@@ -8,21 +8,29 @@ import {
   getPassByIdFromDB,
   getPassByTokenFromDB,
   getResidentPassesFromDB,
+  findApartmentByAscribeHouseId,
+  createApartment,
 } from "../repositories/residentRepository.js";
 import { sendVisitorCodeEmail } from "./emailService.js";
+import {
+  findUserByAscribeResidentId,
+  createUserInDB,
+} from "../repositories/userRepository.js";
+
+import { getResidentHouses } from "./ascribe.service.js";
 
 export const createVisitorPassService = async (
   residentId,
   manualCode,
   data,
 ) => {
+  console.log(residentId);
+
   const apartment = await getApartmentByResidentIdFromDB(residentId);
 
   if (!apartment) {
     throw new Error("Resident has no apartment assigned.");
   }
-
-  console.log(data);
 
   const visitor = await createVisitorInDB({
     fullName: data.guestName,
@@ -101,4 +109,67 @@ export const cancelVisitorPass = async (passId, residentId) => {
   const cancelledPass = await cancelVisitorPassFromDB(passId, residentId);
 
   return cancelledPass;
+};
+
+export const syncResident = async ({
+  ascribeResidentId,
+  ascribeToken,
+  fullName,
+  phone,
+}) => {
+  // 1. Find the local user
+  let user = await findUserByAscribeResidentId(ascribeResidentId);
+
+  // 2. Create the local user if they don't exist
+  if (!user) {
+    user = await createUserInDB({
+      fullName,
+      phone,
+      ascribeResidentId,
+      role: "resident",
+      status: "active",
+    });
+  }
+
+  // 3. Fetch the resident's assigned houses from Ascribe
+  const response = await getResidentHouses({
+    residentId: ascribeResidentId,
+    token: ascribeToken,
+  });
+
+  if (!response.ok) {
+    const error = new Error(
+      response.data?.message || "Unable to fetch resident houses from Ascribe.",
+    );
+
+    error.status = response.status;
+
+    throw error;
+  }
+
+  const houses = response.data.data;
+  console.log(houses);
+
+  // 4. Synchronize each house with a local apartment
+  const apartments = [];
+
+  for (const house of houses) {
+    let apartment = await findApartmentByAscribeHouseId(house.id);
+
+    if (!apartment) {
+      apartment = await createApartment({
+        ascribeHouseId: house.id,
+        residentId: user.id,
+        unitNumber: house.house_number,
+      });
+    }
+
+    apartments.push(apartment);
+  }
+
+  // 5. Return the synchronized records
+  return {
+    user,
+    apartments,
+  };
 };

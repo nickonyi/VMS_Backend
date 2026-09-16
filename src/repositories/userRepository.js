@@ -1,34 +1,39 @@
 import { prisma } from "../lib/prisma.js";
 
-export const createUsersInDB = async ({
+export const createUserInDB = async ({
   fullName,
-  email,
   phone,
-  hashedPassword,
+  ascribeResidentId,
   role,
   status,
 }) => {
-  const users = await prisma.$queryRaw`
+  const result = await prisma.$queryRaw`
     INSERT INTO users (
       full_name,
-      email,
       phone,
-      password_hash,
+      ascribe_resident_id,
       role,
       status
     )
     VALUES (
       ${fullName},
-      ${email},
       ${phone},
-      ${hashedPassword},
+      ${ascribeResidentId},
       ${role},
       ${status}
     )
-    RETURNING *;
+    RETURNING
+      id,
+      full_name,
+      phone,
+      ascribe_resident_id,
+      role,
+      status,
+      created_at,
+      updated_at
   `;
 
-  return users[0] ?? null;
+  return result[0] ?? null;
 };
 
 export const getUserByEmailFromDb = async (email) => {
@@ -63,11 +68,30 @@ export const getUserByIdFromDb = async (id) => {
   return users[0] ?? null;
 };
 
-export const findStaffByPhone = async (phone) => {
+export const findUserByPhone = async (phone) => {
   const result = await prisma.$queryRaw`
     SELECT *
     FROM users
     WHERE phone = ${phone}
+    LIMIT 1
+  `;
+
+  return result[0] || null;
+};
+
+export const findUserByAscribeResidentId = async (ascribeResidentId) => {
+  const result = await prisma.$queryRaw`
+    SELECT
+      id,
+      full_name,
+      phone,
+      ascribe_resident_id,
+      role,
+      status,
+      created_at,
+      updated_at
+    FROM users
+    WHERE ascribe_resident_id = ${ascribeResidentId}
     LIMIT 1
   `;
 

@@ -1,8 +1,8 @@
 import {
-  createUsersInDB,
+  createUserInDB,
   getUserByEmailFromDb,
   getUserByIdFromDb,
-  findStaffByPhone,
+  findUserByPhone,
 } from "../repositories/userRepository.js";
 import { hashPassword, verifyPassword } from "../utils/hash.js";
 
@@ -21,7 +21,7 @@ export const registerUser = async ({
   try {
     const hashedPassword = await hashPassword(password);
 
-    return await createUsersInDB({
+    return await createUserInDB({
       fullName,
       email,
       phone,
@@ -55,7 +55,7 @@ export const validateUser = async (email, password, verifyFn) => {
 };
 
 export const authenticateStaff = async (phone, password) => {
-  const user = await findStaffByPhone(phone);
+  const user = await findUserByPhone(phone);
 
   if (!user) {
     return null;

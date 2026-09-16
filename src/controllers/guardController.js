@@ -51,8 +51,7 @@ export const checkInPass = async (req, res, next) => {
   try {
     const passId = req.params.id;
 
-    // Passport gives us the authenticated user.
-    const guardId = req.user.id;
+    const guardId = req.session.auth.userId;
 
     const pass = await checkInVisitorPass(passId, guardId);
 

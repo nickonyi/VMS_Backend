@@ -96,7 +96,7 @@ export const getAccessStatus = async (req, res, next) => {
       });
     }
 
-    const houses = response.data;
+    const houses = response.data.data;
 
     const hasAccess = Array.isArray(houses) && houses.length > 0;
 

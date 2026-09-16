@@ -32,7 +32,7 @@ export const createVisitorPass = async (req, res, next) => {
 
   try {
     const pass = await createVisitorPassService(
-      req.user.id,
+      req.session.auth.userId,
       manualCode,
       matchedData(req),
     );
@@ -71,7 +71,7 @@ export const getPass = async (req, res, next) => {
 
 export const getMyVisitorPasses = async (req, res, next) => {
   try {
-    const residentId = req.user.id;
+    const residentId = req.session.auth.userId;
 
     const passes = await getResidentPasses(residentId);
 

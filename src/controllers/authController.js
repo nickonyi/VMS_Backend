@@ -5,8 +5,9 @@ import {
   registerResident,
 } from "../services/ascribe.service.js";
 import { authenticateStaff } from "../services/authService.js";
-import { findStaffByPhone } from "../repositories/userRepository.js";
+import { findUserByPhone } from "../repositories/userRepository.js";
 import { getAscribeProperties } from "../services/ascribe.service.js";
+import { syncResident } from "../services/residentService.js";
 
 export const postSignup = async (req, res, next) => {
   try {
@@ -93,9 +94,14 @@ export const postSignin = async (req, res, next) => {
   try {
     const { phone, password } = matchedData(req);
 
-    const existingUser = await findStaffByPhone(phone);
+    const existingUser = await findUserByPhone(phone);
 
-    if (existingUser) {
+    /*
+     * STAFF LOGIN
+     *
+     * Guards and admins are authenticated by GateKeep.
+     */
+    if (existingUser && existingUser.role !== "resident") {
       const user = await authenticateStaff(phone, password);
 
       if (!user) {
@@ -124,6 +130,7 @@ export const postSignin = async (req, res, next) => {
             fullName: user.full_name,
             phone: user.phone,
             role: user.role,
+            status: user.status,
           },
         });
       });
@@ -131,6 +138,11 @@ export const postSignin = async (req, res, next) => {
       return;
     }
 
+    /*
+     * RESIDENT LOGIN
+     *
+     * Residents are authenticated by Ascribe.
+     */
     const ascribeResponse = await loginResident({
       resident_phone: phone,
       resident_password: password,
@@ -144,14 +156,25 @@ export const postSignin = async (req, res, next) => {
     }
 
     const ascribeData = ascribeResponse.data;
-    console.log(ascribeData);
 
     const token = ascribeData.token;
-    console.log(token);
-
     const resident = ascribeData.tenant;
-    console.log(resident);
 
+    /*
+     * Synchronize the Ascribe resident and
+     * their assigned houses with GateKeep.
+     */
+    const syncResult = await syncResident({
+      ascribeResidentId: resident.id,
+      ascribeToken: token,
+      fullName: resident.resident_name,
+      phone: resident.resident_phone,
+    });
+
+    /*
+     * Create a fresh session after successful
+     * authentication and synchronization.
+     */
     req.session.regenerate((err) => {
       if (err) {
         return next(err);
@@ -160,6 +183,7 @@ export const postSignin = async (req, res, next) => {
       req.session.auth = {
         userType: "resident",
         role: "resident",
+        userId: syncResult.user.id,
         ascribeResidentId: resident.id,
         ascribeToken: token,
       };
@@ -168,12 +192,11 @@ export const postSignin = async (req, res, next) => {
         success: true,
         message: "Login successful.",
         user: {
-          id: resident.id,
-          fullName: resident.resident_name,
-          phone: resident.resident_phone,
+          id: syncResult.user.id,
+          fullName: syncResult.user.full_name,
+          phone: syncResult.user.phone,
           role: "resident",
-          status:
-            resident.resident_active_status === "Y" ? "active" : "inactive",
+          status: syncResult.user.status,
         },
       });
     });
@@ -181,7 +204,6 @@ export const postSignin = async (req, res, next) => {
     next(err);
   }
 };
-
 export const getSignout = (req, res, next) => {
   req.logout((err) => {
     if (err) return next(err);
