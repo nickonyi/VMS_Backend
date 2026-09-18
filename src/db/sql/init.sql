@@ -66,16 +66,12 @@ CREATE TYPE visit_purpose AS ENUM (
 
 CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-
     full_name VARCHAR(100) NOT NULL,
-    email VARCHAR(255) NOT NULL UNIQUE,
-    phone VARCHAR(20),
-
-    password_hash TEXT NOT NULL,
-
+    phone VARCHAR(20) NOT NULL UNIQUE,
+    password_hash VARCHAR(255),
+    ascribe_resident_id INTEGER UNIQUE,
     role user_role NOT NULL,
     status user_status NOT NULL DEFAULT 'active',
-
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -88,24 +84,35 @@ CREATE TABLE users (
 CREATE TABLE apartments (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
+    ascribe_house_id INTEGER NOT NULL UNIQUE,
+
+    property_id UUID,
+
+    resident_id UUID NOT NULL,
+
     unit_number VARCHAR(20) NOT NULL,
+
     block VARCHAR(50),
+
     floor INTEGER,
 
-    resident_id UUID UNIQUE,
-
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_apartment_property
+        FOREIGN KEY (property_id)
+        REFERENCES properties(id)
+        ON DELETE SET NULL,
 
     CONSTRAINT fk_apartment_resident
         FOREIGN KEY (resident_id)
         REFERENCES users(id)
-        ON DELETE SET NULL,
+        ON DELETE NO ACTION,
 
-    CONSTRAINT unique_unit
-        UNIQUE(unit_number, block)
+    CONSTRAINT unique_property_unit
+        UNIQUE(property_id, unit_number, block)
 );
-
 
 -- =====================================================
 -- Visitors

@@ -7,51 +7,74 @@ datasource db {
   provider = "postgresql"
 }
 
-model apartments {
-  id             String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  unit_number    String           @db.VarChar(20)
-  block          String?          @db.VarChar(50)
-  floor          Int?
-  resident_id    String?          @unique @db.Uuid
-  created_at     DateTime         @default(now()) @db.Timestamptz(6)
-  updated_at     DateTime         @default(now()) @db.Timestamptz(6)
-  users          users?           @relation(fields: [resident_id], references: [id], onUpdate: NoAction, map: "fk_apartment_resident")
-  visitor_passes visitor_passes[]
-
-  @@unique([unit_number, block], map: "unique_unit")
-}
-
 model users {
-  id             String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  full_name      String           @db.VarChar(100)
-  email          String           @unique @db.VarChar(255)
-  phone          String?          @db.VarChar(20)
-  password_hash  String
-  role           user_role
-  status         user_status      @default(active)
-  created_at     DateTime         @default(now()) @db.Timestamptz(6)
-  updated_at     DateTime         @default(now()) @db.Timestamptz(6)
-  apartments     apartments?
+  id                  String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  full_name           String      @db.VarChar(100)
+  phone               String      @unique @db.VarChar(20)
+  password_hash       String?     @db.VarChar(255)
+  ascribe_resident_id Int?        @unique
+  role                user_role
+  status              user_status @default(active)
+  created_at          DateTime    @default(now()) @db.Timestamptz(6)
+  updated_at          DateTime    @default(now()) @db.Timestamptz(6)
+
+  apartments     apartments[]
   visit_logs     visit_logs[]
   visitor_passes visitor_passes[]
 
-  @@index([email], map: "idx_users_email")
+  @@index([ascribe_resident_id], map: "idx_users_ascribe_resident")
+}
+
+model properties {
+  id                  String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  ascribe_property_id Int      @unique
+  name                String   @db.VarChar(150)
+  code                String?  @db.VarChar(100)
+  phone               String?  @db.VarChar(20)
+  email               String?  @db.VarChar(255)
+  location            String?  @db.VarChar(255)
+  city                String?  @db.VarChar(100)
+  country             String?  @db.VarChar(100)
+  created_at          DateTime @default(now()) @db.Timestamptz(6)
+  updated_at          DateTime @default(now()) @db.Timestamptz(6)
+
+  apartments apartments[]
+}
+
+model apartments {
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  ascribe_house_id Int      @unique
+  property_id      String?  @db.Uuid
+  resident_id      String   @db.Uuid
+  unit_number      String   @db.VarChar(20)
+  block            String?  @db.VarChar(50)
+  floor            Int?
+  created_at       DateTime @default(now()) @db.Timestamptz(6)
+  updated_at       DateTime @default(now()) @db.Timestamptz(6)
+
+  property       properties?      @relation(fields: [property_id], references: [id], onUpdate: NoAction)
+  resident       users            @relation(fields: [resident_id], references: [id], onUpdate: NoAction)
+  visitor_passes visitor_passes[]
+
+  @@unique([property_id, unit_number, block], map: "unique_property_unit")
+  @@index([property_id], map: "idx_apartments_property")
+  @@index([resident_id], map: "idx_apartments_resident")
 }
 
 model visit_logs {
-  id              String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  visitor_pass_id String         @db.Uuid
-  guard_id        String         @db.Uuid
+  id              String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  visitor_pass_id String       @db.Uuid
+  guard_id        String       @db.Uuid
   action          visit_action
-  timestamp       DateTime       @default(now()) @db.Timestamptz(6)
-  users           users          @relation(fields: [guard_id], references: [id], onUpdate: NoAction, map: "fk_log_guard")
-  visitor_passes  visitor_passes @relation(fields: [visitor_pass_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_log_pass")
+  timestamp       DateTime     @default(now()) @db.Timestamptz(6)
+
+  users          users          @relation(fields: [guard_id], references: [id], onUpdate: NoAction)
+  visitor_passes visitor_passes @relation(fields: [visitor_pass_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@index([guard_id], map: "idx_logs_guard")
   @@index([visitor_pass_id], map: "idx_logs_pass")
 }
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model visitor_passes {
   id                  String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   visitor_id          String              @db.Uuid
@@ -67,26 +90,29 @@ model visitor_passes {
   created_at          DateTime            @default(now()) @db.Timestamptz(6)
   updated_at          DateTime            @default(now()) @db.Timestamptz(6)
   cancelled_at        DateTime?           @db.Timestamptz(6)
-  visit_logs          visit_logs[]
-  apartments          apartments          @relation(fields: [apartment_id], references: [id], onUpdate: NoAction, map: "fk_pass_apartment")
-  users               users               @relation(fields: [resident_id], references: [id], onUpdate: NoAction, map: "fk_pass_resident")
-  visitors            visitors            @relation(fields: [visitor_id], references: [id], onUpdate: NoAction, map: "fk_pass_visitor")
+
+  visit_logs visit_logs[]
+  apartment  apartments   @relation(fields: [apartment_id], references: [id], onUpdate: NoAction)
+  resident   users        @relation(fields: [resident_id], references: [id], onUpdate: NoAction)
+  visitor    visitors     @relation(fields: [visitor_id], references: [id], onUpdate: NoAction)
 
   @@index([expected_arrival_at], map: "idx_pass_arrival")
   @@index([resident_id], map: "idx_pass_resident")
+  @@index([apartment_id], map: "idx_pass_apartment")
   @@index([status], map: "idx_pass_status")
   @@index([visitor_id], map: "idx_pass_visitor")
 }
 
 model visitors {
-  id             String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  full_name      String           @db.VarChar(100)
-  phone          String?          @db.VarChar(20)
-  vehicle_reg    String?          @db.VarChar(20)
-  email          String?          @db.VarChar(255)
-  id_number      String?          @db.VarChar(50)
-  created_at     DateTime         @default(now()) @db.Timestamptz(6)
-  updated_at     DateTime         @default(now()) @db.Timestamptz(6)
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  full_name   String   @db.VarChar(100)
+  phone       String?  @db.VarChar(20)
+  vehicle_reg String?  @db.VarChar(20)
+  email       String?  @db.VarChar(255)
+  id_number   String?  @db.VarChar(50)
+  created_at  DateTime @default(now()) @db.Timestamptz(6)
+  updated_at  DateTime @default(now()) @db.Timestamptz(6)
+
   visitor_passes visitor_passes[]
 }
 

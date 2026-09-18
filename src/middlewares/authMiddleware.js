@@ -1,5 +1,5 @@
 export const ensureAuth = (req, res, next) => {
-  if (req.isAuthenticated()) {
+  if (req.session.auth) {
     return next();
   }
 

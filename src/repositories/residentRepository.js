@@ -335,3 +335,54 @@ export const cancelVisitorPassFromDB = async (passId, residentId) => {
 
   return result[0] ?? null;
 };
+
+export const createApartment = async ({
+  ascribeHouseId,
+  residentId,
+  unitNumber,
+}) => {
+  const result = await prisma.$queryRaw`
+    INSERT INTO apartments (
+      ascribe_house_id,
+      resident_id,
+      unit_number
+    )
+    VALUES (
+      ${ascribeHouseId},
+      ${residentId},
+      ${unitNumber}
+    )
+    RETURNING
+      id,
+      ascribe_house_id,
+      property_id,
+      resident_id,
+      unit_number,
+      block,
+      floor,
+      created_at,
+      updated_at
+  `;
+
+  return result[0];
+};
+
+export const findApartmentByAscribeHouseId = async (ascribeHouseId) => {
+  const result = await prisma.$queryRaw`
+    SELECT
+      id,
+      ascribe_house_id,
+      property_id,
+      resident_id,
+      unit_number,
+      block,
+      floor,
+      created_at,
+      updated_at
+    FROM apartments
+    WHERE ascribe_house_id = ${ascribeHouseId}
+    LIMIT 1
+  `;
+
+  return result[0] || null;
+};

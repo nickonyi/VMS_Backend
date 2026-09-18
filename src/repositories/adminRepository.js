@@ -31,7 +31,7 @@ export const getAllVisitorPassesFromDB = async ({
       v.vehicle_reg,
 
       u.full_name AS resident_name,
-      u.email AS resident_email,
+     
 
       a.unit_number,
       a.block,
@@ -177,7 +177,6 @@ export const getAllUsersFromDB = async () => {
     SELECT
       u.id,
       u.full_name,
-      u.email,
       u.phone,
       u.role,
       u.status,
